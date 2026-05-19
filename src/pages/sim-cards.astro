@@ -1,0 +1,549 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import plans from '../data/sim-plans.js';
+const serialisedPlans = JSON.stringify(plans);
+---
+
+<BaseLayout
+  title="SIM Card Finder — Arrivly"
+  description="Find the best Australian SIM card in 3 questions. 12 plans verified — including which ones actually include Nepal, India, and Philippines calls.">
+
+  <div class="flex flex-col items-center px-4 pt-4 pb-16 sm:pt-8 sm:pb-24">
+
+    <!-- Page intro -->
+    <div class="w-full max-w-5xl mb-8 sm:mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">SIM cards</p>
+      <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-ink leading-[1.1] mb-4">
+        Find your SIM in <span class="relative inline-block">
+          three questions.
+          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
+        </span>
+      </h1>
+      <p class="text-base text-muted leading-relaxed max-w-xl">
+        Tell us what matters most. We'll rank 12 verified plans by how well they actually fit — not by who pays us most.
+      </p>
+
+      <!-- Affiliate disclosure — visible above the fold per ACCC guidelines -->
+      <p class="mt-6 text-xs text-faint">
+        Some links on this page may earn Arrivly a commission. This doesn't affect our rankings.
+        <a href="/affiliate-disclosure" class="text-ink underline decoration-2 decoration-accent underline-offset-2 hover:decoration-ink ml-1">Learn more</a>
+      </p>
+    </div>
+
+    <!-- ── Wizard card ── -->
+    <div id="wizard" class="w-full max-w-5xl bg-white rounded-3xl border border-black/5 overflow-hidden">
+
+      <!-- Segmented progress -->
+      <div class="flex gap-1.5 px-8 pt-6">
+        <div class="progress-seg h-1 flex-1 rounded-full bg-ink transition-colors duration-300"></div>
+        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
+        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
+      </div>
+
+      <!-- Header row -->
+      <div class="flex items-center justify-between px-8 pt-6 pb-0">
+        <span id="step-label" class="text-sm text-muted">Question 1 of 3</span>
+        <button id="restart-btn" class="hidden text-sm text-faint hover:text-ink transition-colors">
+          Start over
+        </button>
+      </div>
+
+      <div class="px-6 pt-8 pb-12 sm:px-12 sm:pt-10 sm:pb-14">
+
+        <!-- ── Step 1 — MULTI-SELECT ── -->
+        <div id="step-1">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-2 leading-[1.15]">What matters most to you?</h2>
+          <p class="text-sm text-faint mb-8">Select all that apply.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            <button class="q1-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="calling-home">
+              <span class="text-2xl mb-4 block">📞</span>
+              <p class="font-semibold text-lg text-ink mb-1">Calling home</p>
+              <p class="text-sm text-muted">Family &amp; friends</p>
+            </button>
+
+            <button class="q1-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="data-heavy">
+              <span class="text-2xl mb-4 block">📶</span>
+              <p class="font-semibold text-lg text-ink mb-1">Maximum data</p>
+              <p class="text-sm text-muted">Stream &amp; study</p>
+            </button>
+
+            <button class="q1-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="budget">
+              <span class="text-2xl mb-4 block">💸</span>
+              <p class="font-semibold text-lg text-ink mb-1">Cheapest plan</p>
+              <p class="text-sm text-muted">Tight budget</p>
+            </button>
+
+          </div>
+
+          <div class="mt-8 flex justify-end">
+            <button id="q1-continue" disabled
+              class="px-8 py-3 rounded-full text-sm font-medium bg-ink text-paper transition-all duration-150
+                     disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-ink/85">
+              Continue →
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Step 2 ── -->
+        <div id="step-2" class="hidden">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-10 leading-[1.15]">How long are you staying?</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="duration" data-value="short-stay">
+              <span class="text-2xl mb-4 block">✈️</span>
+              <p class="font-semibold text-lg text-ink mb-1">Under 3 months</p>
+              <p class="text-sm text-muted">Short trip</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="duration" data-value="long-stay">
+              <span class="text-2xl mb-4 block">🎓</span>
+              <p class="font-semibold text-lg text-ink mb-1">3 months – 2 years</p>
+              <p class="text-sm text-muted">Student or work visa</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="duration" data-value="long-stay">
+              <span class="text-2xl mb-4 block">🏡</span>
+              <p class="font-semibold text-lg text-ink mb-1">More than 2 years</p>
+              <p class="text-sm text-muted">Permanent move</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Step 3 ── -->
+        <div id="step-3" class="hidden">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-10 leading-[1.15]">Which country do you call most?</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="IN">
+              <span class="text-3xl mb-2 block">🇮🇳</span>
+              <p class="font-semibold text-base text-ink">India</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="NP">
+              <span class="text-3xl mb-2 block">🇳🇵</span>
+              <p class="font-semibold text-base text-ink">Nepal</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="PH">
+              <span class="text-3xl mb-2 block">🇵🇭</span>
+              <p class="font-semibold text-base text-ink">Philippines</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="CN">
+              <span class="text-3xl mb-2 block">🇨🇳</span>
+              <p class="font-semibold text-base text-ink">China</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="BD">
+              <span class="text-3xl mb-2 block">🇧🇩</span>
+              <p class="font-semibold text-base text-ink">Bangladesh</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="VN">
+              <span class="text-3xl mb-2 block">🇻🇳</span>
+              <p class="font-semibold text-base text-ink">Vietnam</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="PK">
+              <span class="text-3xl mb-2 block">🇵🇰</span>
+              <p class="font-semibold text-base text-ink">Pakistan</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-5 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="3" data-key="country" data-value="OTHER">
+              <span class="text-3xl mb-2 block">🌍</span>
+              <p class="font-semibold text-base text-ink">Other</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Results ── -->
+        <div id="step-results" class="hidden">
+          <div id="results-banner"></div>
+          <div id="top-match-container"></div>
+          <div id="other-options-section" class="hidden mt-10">
+            <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-4">Other options</h3>
+            <div id="other-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+          </div>
+          <p class="mt-10 text-center text-xs text-faint">
+            ✱ Data verified 15 May 2026 · Prices may change · Some links may be affiliate
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</BaseLayout>
+
+<script define:vars={{ serialisedPlans }}>
+  const PLANS = JSON.parse(serialisedPlans);
+
+  // ── State ──────────────────────────────────────────────────────────────
+  const answers = { priorities: [], duration: null, country: null };
+
+  // ── DOM refs ───────────────────────────────────────────────────────────
+  const stepLabel    = document.getElementById('step-label');
+  const restartBtn   = document.getElementById('restart-btn');
+  const progressSegs = document.querySelectorAll('.progress-seg');
+  const q1Continue   = document.getElementById('q1-continue');
+
+  // ── Selection styling helpers (used in both HTML & JS so we keep them DRY) ──
+  const SELECTED_CLASSES = ['border-ink', 'bg-warm'];
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function countryCovered(plan, code) {
+    if (!code || code === 'OTHER') return null;
+    const c = plan.international_calls;
+    if (!c.included) return null;
+    if (c.unlimited_countries.includes(code)) return 'unlimited';
+    if (c.limited_minutes_countries.includes(code)) return 'limited';
+    return null;
+  }
+
+  function dataDisplay(plan) {
+    return plan.data_gb >= 900 ? 'Unlimited' : `${plan.data_gb}GB`;
+  }
+
+  function coverageLabel(cov) {
+    if (!cov) return null;
+    const { metro, regional } = cov;
+    if (regional === 'excellent') return 'Best for regional Australia';
+    if (metro === 'excellent' && (regional === 'fair' || regional === 'poor')) return 'Best for metro areas';
+    if ((metro === 'excellent' || metro === 'good') && regional === 'good') return 'Solid coverage Australia-wide';
+    return 'Limited regional coverage';
+  }
+
+  // ── Progress ───────────────────────────────────────────────────────────
+  function setProgress(step) {
+    const fill = step === 'results' ? 3 : step;
+    progressSegs.forEach((seg, i) => {
+      seg.classList.toggle('bg-ink', i < fill);
+      seg.classList.toggle('bg-black/10', i >= fill);
+    });
+  }
+
+  // ── Hard filters ───────────────────────────────────────────────────────
+  function filterPlans() {
+    return PLANS.filter(plan => {
+      if (answers.priorities.includes('calling-home') && !plan.international_calls.included) return false;
+      if (answers.priorities.includes('budget') && plan.price_aud > 25) return false;
+      if (isNepalScenario() && plan.international_calls.nepal_minutes <= 0) return false;
+      return true;
+    });
+  }
+
+  function isNepalScenario() {
+    return answers.priorities.includes('calling-home') && answers.country === 'NP';
+  }
+
+  // ── Scoring ────────────────────────────────────────────────────────────
+  function scorePlan(plan) {
+    let score = 0;
+
+    for (const p of answers.priorities) {
+      if (plan.best_for.includes(p)) score += 30;
+    }
+    if (answers.duration && plan.best_for.includes(answers.duration)) score += 20;
+
+    const match = countryCovered(plan, answers.country);
+    if (match === 'unlimited') score += 25;
+    else if (match === 'limited') score += 20;
+
+    if (answers.priorities.includes('data-heavy')) {
+      score += Math.min(plan.data_gb, 1000) * 0.1;
+    } else {
+      score += Math.min(plan.data_gb, 100) * 0.05;
+    }
+
+    if (answers.duration === 'long-stay' && (plan.network === 'Telstra' || plan.network === 'Telstra wholesale')) {
+      score += 15;
+    }
+
+    return score;
+  }
+
+  // ── Card builders ──────────────────────────────────────────────────────
+  function stat(value, label) {
+    return `<div>
+      <p class="text-xl sm:text-2xl font-bold text-ink">${value}</p>
+      <p class="text-sm text-muted mt-0.5">${label}</p>
+    </div>`;
+  }
+
+  function billingLine(plan) {
+    if (!plan.billing_warning) {
+      return `<p class="text-xs text-faint mt-2">Billed every ${plan.billing_cycle_days} days</p>`;
+    }
+    return `<p class="text-xs text-amber-600 mt-2">⚠ Billed every ${plan.billing_cycle_days} days — that's 13 payments per year, not 12</p>`;
+  }
+
+  function dataNoteHtml(plan) {
+    return plan.data_note
+      ? `<p class="text-xs text-muted mt-1">${plan.data_note}</p>`
+      : '';
+  }
+
+  function lycamobileDisclaimer(plan) {
+    if (plan.provider !== 'Lycamobile') return '';
+    return `<div class="mt-4 px-3 py-2 rounded-lg bg-amber-50 border border-amber-100 text-xs text-amber-700">
+      Country list pending full verification — check lycamobile.com.au for current inclusions.
+    </div>`;
+  }
+
+  function verificationFooter(plan) {
+    return `<p class="text-xs text-faint mt-5">Data verified: ${plan.last_verified} · ${plan.verified_source}</p>`;
+  }
+
+  function buildTopCard(plan) {
+    const match = countryCovered(plan, answers.country);
+    const hasIntl = plan.international_calls.included;
+    const intlValue = hasIntl ? '✓' : '—';
+    const intlColor = hasIntl ? 'text-ink' : 'text-faint';
+
+    let countryDisplay = '—';
+    let countryColor = 'text-faint';
+    if (match === 'unlimited') { countryDisplay = '✓'; countryColor = 'text-ink'; }
+    else if (match === 'limited') {
+      countryDisplay = `${plan.international_calls.limited_minutes_amount}m`;
+      countryColor = 'text-ink';
+    } else if (answers.country && answers.country !== 'OTHER') {
+      countryDisplay = '✗';
+    }
+
+    const countryBlock = answers.country
+      ? `<div>
+          <p class="text-xl sm:text-2xl font-bold ${countryColor}">${countryDisplay}</p>
+          <p class="text-sm text-muted mt-0.5">Your country</p>
+        </div>`
+      : '';
+    const cols = answers.country ? 'grid-cols-3' : 'grid-cols-2';
+    const coverage = coverageLabel(plan.coverage);
+
+    return `
+      <div>
+        <!-- Lime "Your top match" pill -->
+        <div class="inline-flex mb-4">
+          <span class="bg-accent text-ink px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.18em]">
+            Your top match
+          </span>
+        </div>
+
+        <div class="bg-warm rounded-3xl p-7 sm:p-9 border border-black/5">
+          <!-- Name + price -->
+          <div class="flex items-start justify-between gap-4 mb-8">
+            <div>
+              <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink leading-[1.15]">${plan.name}</h3>
+              <p class="text-sm text-faint mt-2">${plan.network} · ${plan.network_type}</p>
+              ${coverage ? `<p class="text-xs text-faint mt-0.5">${coverage}</p>` : ''}
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-3xl sm:text-4xl font-bold text-ink">$${plan.price_aud}</span>
+              <span class="text-sm text-faint block">/month</span>
+              ${billingLine(plan)}
+            </div>
+          </div>
+
+          ${plan.price_intro_note ? `<div class="mb-6 px-3 py-2 rounded-lg bg-accent/30 border border-accent text-xs text-ink">🎉 Intro offer: ${plan.price_intro_note}</div>` : ''}
+
+          <!-- Key stats -->
+          <div class="grid ${cols} gap-6 py-7 border-y border-black/5 mb-1">
+            <div>
+              <p class="text-xl sm:text-2xl font-bold text-ink">${dataDisplay(plan)}</p>
+              <p class="text-sm text-muted mt-0.5">Data</p>
+              ${dataNoteHtml(plan)}
+            </div>
+            <div>
+              <p class="text-xl sm:text-2xl font-bold ${intlColor}">${intlValue}</p>
+              <p class="text-sm text-muted mt-0.5">International calls</p>
+            </div>
+            ${countryBlock}
+          </div>
+
+          ${lycamobileDisclaimer(plan)}
+
+          <!-- Pros -->
+          <ul class="space-y-2.5 mt-7 mb-8">
+            ${plan.pros.map(p => `
+              <li class="flex items-start gap-3 text-sm text-muted">
+                <span class="mt-0.5 shrink-0 text-faint">✓</span>${p}
+              </li>`).join('')}
+          </ul>
+
+          <!-- CTA -->
+          <a href="${plan.affiliate_url}" target="_blank" rel="noopener sponsored"
+            class="flex items-center justify-center gap-2 w-full bg-ink text-paper font-medium text-sm py-4 rounded-full hover:bg-ink/85 transition-colors">
+            Get this SIM <span aria-hidden="true">→</span>
+          </a>
+
+          ${verificationFooter(plan)}
+        </div>
+      </div>`;
+  }
+
+  function buildAltCard(plan) {
+    const match = countryCovered(plan, answers.country);
+    const hasIntl = plan.international_calls.included;
+    const coverage = coverageLabel(plan.coverage);
+
+    let countryNote = '';
+    if (match === 'unlimited') countryNote = `Unlimited to ${answers.country}`;
+    else if (match === 'limited') countryNote = `${plan.international_calls.limited_minutes_amount}m to ${answers.country}`;
+    else if (answers.country && answers.country !== 'OTHER') countryNote = `${answers.country} not covered`;
+
+    return `
+      <div class="bg-white rounded-2xl p-6 border border-black/5">
+        <div class="flex items-start justify-between gap-2 mb-1">
+          <p class="font-semibold text-ink">${plan.name}</p>
+          <div class="text-right shrink-0">
+            <span class="font-bold text-ink">$${plan.price_aud}</span>
+            <span class="text-xs text-faint">/mo</span>
+          </div>
+        </div>
+        <p class="text-xs text-faint mb-1">${plan.network}${coverage ? ' · ' + coverage : ''}</p>
+        ${plan.billing_warning ? `<p class="text-xs text-amber-600 mb-3">⚠ Billed every ${plan.billing_cycle_days} days</p>` : `<p class="text-xs text-faint mb-3">Billed every ${plan.billing_cycle_days} days</p>`}
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted mb-4">
+          <span>${dataDisplay(plan)}</span>
+          <span>·</span>
+          <span>${hasIntl ? 'Intl calls' : 'No intl calls'}</span>
+          ${countryNote ? `<span>·</span><span>${countryNote}</span>` : ''}
+        </div>
+        ${plan.data_note ? `<p class="text-xs text-muted mb-4">${plan.data_note}</p>` : ''}
+        ${plan.provider === 'Lycamobile' ? `<p class="text-xs text-amber-700 mb-4">⚠ Country list pending verification</p>` : ''}
+        <a href="${plan.affiliate_url}" target="_blank" rel="noopener sponsored"
+          class="flex items-center justify-center gap-1.5 w-full border border-black/15 text-ink text-sm font-medium py-2.5 rounded-full hover:border-ink hover:bg-warm transition-colors">
+          Get this SIM <span aria-hidden="true">→</span>
+        </a>
+        <p class="text-xs text-faint mt-3">Verified ${plan.last_verified}</p>
+      </div>`;
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────
+  function goToStep(n) {
+    document.querySelectorAll('[id^="step-"]').forEach(el => el.classList.add('hidden'));
+
+    if (n === 'results') {
+      document.getElementById('step-results').classList.remove('hidden');
+      setProgress('results');
+      stepLabel.textContent = 'Results';
+      restartBtn.classList.remove('hidden');
+      renderResults();
+    } else {
+      document.getElementById(`step-${n}`).classList.remove('hidden');
+      setProgress(n);
+      stepLabel.textContent = `Question ${n} of 3`;
+      restartBtn.classList.toggle('hidden', n === 1);
+    }
+  }
+
+  function renderResults() {
+    const banner   = document.getElementById('results-banner');
+    const topEl    = document.getElementById('top-match-container');
+    const altSec   = document.getElementById('other-options-section');
+    const altCont  = document.getElementById('other-options-container');
+
+    let pool = filterPlans();
+
+    if (isNepalScenario()) {
+      pool = pool.slice().sort((a, b) => {
+        const diff = b.international_calls.nepal_minutes - a.international_calls.nepal_minutes;
+        if (diff !== 0) return diff;
+        return b.data_gb - a.data_gb;
+      });
+      banner.innerHTML = `
+        <div class="mb-6 px-5 py-4 rounded-xl bg-warm border-l-4 border-accent">
+          <p class="text-sm text-ink font-semibold">📞 Heads up about Nepal calling</p>
+          <p class="text-xs text-muted mt-1.5 leading-relaxed">
+            Only Boost and Lebara include Nepal calling in their plans.
+            Boost gives you 300 mins, Lebara gives you 30–50 mins. All other Australian SIMs offer no Nepal minutes.
+          </p>
+        </div>`;
+    } else {
+      banner.innerHTML = '';
+      pool = pool
+        .map(p => ({ plan: p, score: scorePlan(p) }))
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.plan);
+    }
+
+    if (pool.length === 0) {
+      topEl.innerHTML = `
+        <div class="text-center py-12">
+          <p class="text-muted mb-4">No plans match your exact criteria.</p>
+          <button onclick="document.getElementById('restart-btn').click()"
+            class="text-sm font-medium text-ink underline decoration-2 decoration-accent underline-offset-2">
+            Start over and adjust your answers
+          </button>
+        </div>`;
+      altSec.classList.add('hidden');
+      return;
+    }
+
+    const top3 = pool.slice(0, 3);
+    topEl.innerHTML = buildTopCard(top3[0]);
+
+    const rest = top3.slice(1);
+    if (rest.length > 0) {
+      altCont.innerHTML = rest.map(p => buildAltCard(p)).join('');
+      altSec.classList.remove('hidden');
+    } else {
+      altSec.classList.add('hidden');
+    }
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────
+  restartBtn.addEventListener('click', () => {
+    answers.priorities = [];
+    answers.duration   = null;
+    answers.country    = null;
+    document.querySelectorAll('.q1-btn, .choice-btn').forEach(b =>
+      b.classList.remove(...SELECTED_CLASSES)
+    );
+    q1Continue.disabled = true;
+    goToStep(1);
+  });
+
+  // ── Q1 multi-select ────────────────────────────────────────────────────
+  document.querySelectorAll('.q1-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.value;
+      const idx   = answers.priorities.indexOf(value);
+      if (idx === -1) {
+        answers.priorities.push(value);
+        btn.classList.add(...SELECTED_CLASSES);
+      } else {
+        answers.priorities.splice(idx, 1);
+        btn.classList.remove(...SELECTED_CLASSES);
+      }
+      q1Continue.disabled = answers.priorities.length === 0;
+    });
+  });
+
+  q1Continue.addEventListener('click', () => goToStep(2));
+
+  // ── Q2 & Q3 single-select ─────────────────────────────────────────────
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step  = parseInt(btn.dataset.step);
+      const key   = btn.dataset.key;
+      const value = btn.dataset.value;
+
+      document.querySelectorAll(`[data-step="${step}"]`).forEach(b =>
+        b.classList.remove(...SELECTED_CLASSES)
+      );
+      btn.classList.add(...SELECTED_CLASSES);
+
+      answers[key] = value;
+
+      setTimeout(() => {
+        step < 3 ? goToStep(step + 1) : goToStep('results');
+      }, 180);
+    });
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────
+  goToStep(1);
+</script>

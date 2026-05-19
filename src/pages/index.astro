@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Arrivly — Everything you need when you arrive in Australia"
+  description="Compare SIM cards, health insurance, bank accounts and money transfer — built for international students in Australia. No ads, no bias."
+  ogTitle="Arrivly — Everything international students need in Australia"
+  ogDescription="The first weeks in Australia are overwhelming. We make the easy stuff easy.">
+
+  <!-- ── Hero ── -->
+  <section class="px-6 sm:px-10 pt-12 pb-16 sm:pt-24 sm:pb-32">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="font-serif text-5xl sm:text-7xl font-light tracking-tight text-ink leading-[1.04] max-w-4xl">
+        The first weeks in Australia <br class="hidden sm:block" />
+        are overwhelming. <br />
+        We make the easy stuff
+        <span class="relative inline-block">
+          easy.
+          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
+        </span>
+      </h1>
+
+      <div class="text-lg sm:text-xl text-muted mt-10 max-w-2xl leading-relaxed space-y-5">
+        <p>When we arrived, we spent weeks on the wrong SIM card, paid too much for health insurance, and didn't know which bank account actually worked for sending money home.</p>
+        <p>We built Arrivly so you don't have to figure it out the hard way.</p>
+      </div>
+
+      <div class="mt-12 flex flex-wrap gap-3">
+        <a href="/sim-cards"
+          class="inline-flex items-center gap-2 bg-ink text-paper px-7 py-4 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
+          Compare SIM cards <span aria-hidden="true">→</span>
+        </a>
+        <a href="#tools"
+          class="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-medium text-ink border border-black/10 hover:bg-warm transition-colors">
+          See all tools
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tools grid ── -->
+  <section id="tools" class="px-6 sm:px-10 pb-16 sm:pb-32">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-bold uppercase tracking-[0.18em] text-muted mb-4">What we've figured out for you</p>
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-12 max-w-2xl leading-[1.1]">
+        Start here. These four things matter most in your first week.
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <a href="/sim-cards"
+          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
+          <div class="flex items-start justify-between mb-12 sm:mb-16">
+            <span class="text-4xl">📱</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
+              Available now
+            </span>
+          </div>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+            SIM cards
+          </h3>
+          <p class="text-sm text-muted mb-6 leading-relaxed">
+            Most students get this wrong. We tested every major plan — including which ones actually include Nepal, India, and Philippines calls.
+          </p>
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+            Compare plans <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
+        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+          <div class="flex items-start justify-between mb-12 sm:mb-16">
+            <span class="text-4xl opacity-60">🏥</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
+              Coming soon
+            </span>
+          </div>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+            Health insurance
+          </h3>
+          <p class="text-sm text-muted mb-6 leading-relaxed">
+            Your visa requires it. But most students pay more than they need to. We'll show you the difference.
+          </p>
+          <span class="text-sm text-faint">In development</span>
+        </div>
+
+        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+          <div class="flex items-start justify-between mb-12 sm:mb-16">
+            <span class="text-4xl opacity-60">🏦</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
+              Coming soon
+            </span>
+          </div>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+            Bank accounts
+          </h3>
+          <p class="text-sm text-muted mb-6 leading-relaxed">
+            The wrong bank account costs you every time you send money home. We compare the fees nobody talks about.
+          </p>
+          <span class="text-sm text-faint">In development</span>
+        </div>
+
+        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+          <div class="flex items-start justify-between mb-12 sm:mb-16">
+            <span class="text-4xl opacity-60">💸</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
+              Coming soon
+            </span>
+          </div>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+            Money transfer
+          </h3>
+          <p class="text-sm text-muted mb-6 leading-relaxed">
+            Sending $500 home can cost $5 or $25 depending on who you use. We show you exactly who charges what.
+          </p>
+          <span class="text-sm text-faint">In development</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Trust strip ── -->
+  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
+      <div>
+        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
+          We're paid by providers,<br />not by bias.
+        </p>
+        <p class="text-sm text-muted leading-relaxed">
+          We earn a commission when you sign up through our links. But every ranking is based on what fits your situation — not what pays us most. Some plans we recommend earn us nothing.
+        </p>
+      </div>
+      <div>
+        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
+          We check. Then we<br />show our work.
+        </p>
+        <p class="text-sm text-muted leading-relaxed">
+          Every plan shows the date we last verified it and where we got the data. If something is uncertain, we say so. No bluffing.
+        </p>
+      </div>
+      <div>
+        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
+          Made by someone who<br />went through it too.
+        </p>
+        <p class="text-sm text-muted leading-relaxed">
+          We navigated the Australian student and visa system ourselves. This is the resource we needed and couldn't find.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

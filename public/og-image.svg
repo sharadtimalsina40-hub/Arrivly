@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#f5f0e8"/>
+
+  <!-- Logo lockup, centered -->
+  <g transform="translate(360, 240)">
+    <!-- Lime rounded square mark -->
+    <rect width="110" height="110" rx="24" fill="#c8f064"/>
+    <!-- Landing arrow inside (matches Nav.astro logo) -->
+    <path d="M55 12 L55 68 M55 68 L37 50 M55 68 L73 50 M22 86 L88 86"
+      stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Wordmark -->
+    <text x="140" y="88" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="100" font-weight="500" fill="#0a0a0a" letter-spacing="-2">Arrivly</text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="600" y="450" text-anchor="middle"
+    font-family="'DM Sans', system-ui, sans-serif" font-size="28" fill="#555555">
+    Everything international students need in Australia
+  </text>
+</svg>
