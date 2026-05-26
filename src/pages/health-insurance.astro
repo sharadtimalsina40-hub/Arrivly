@@ -1,0 +1,586 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Health Insurance for Visa Holders in Australia — Arrivly"
+  description="Find the right OSHC or OVHC cover for your visa — from student to skilled worker to bridging visa. We break it down simply.">
+
+  <!-- Alpine.js — loaded only on pages that need it -->
+  <script is:inline>
+    document.addEventListener('alpine:init', () => {
+      window.Alpine.data('visaFinder', () => ({
+        selected: null,
+        visas: {
+          '500': {
+            label: 'Student Visa',
+            type: 'OSHC — Overseas Student Health Cover',
+            explanation: 'OSHC is mandatory for all student visa holders. It must be purchased before you arrive in Australia and must cover your entire visa period. It covers hospital, medical, and limited pharmaceutical costs.',
+            note: 'Your OSHC must remain active for the full duration of your 500 visa. If you transition to a 485 visa, your OSHC becomes invalid — you must switch to OVHC.',
+            providers: ['ahm', 'Bupa', 'nib', 'Medibank', 'Allianz Care'],
+          },
+          '485': {
+            label: 'Temporary Graduate Visa',
+            type: 'OVHC — Overseas Visitors Health Cover',
+            explanation: 'When you transition from a student visa to a 485, your OSHC is no longer valid. You must switch to OVHC — ideally before your student visa expires. There must be no gap in cover.',
+            note: 'This is one of the most common coverage mistakes. Many students assume their OSHC continues — it does not once your 500 visa becomes inactive.',
+            providers: ['AIA', 'nib', 'Bupa', 'Allianz Care', 'Medibank', 'HCF'],
+          },
+          '482': {
+            label: 'Skills in Demand Visa (formerly TSS)',
+            type: 'OVHC — Workers Cover',
+            explanation: 'As a sponsored skilled worker, you are required to hold compliant OVHC under Visa Condition 8501. Your employer may arrange this, but you should confirm — many employers expect you to organise it yourself.',
+            note: 'The 482 visa has replaced the old 457 visa. If your sponsor holds standard status, check whether they are responsible for your health cover costs.',
+            providers: ['AIA', 'nib', 'Bupa', 'Allianz Care', 'Medibank', 'HCF'],
+          },
+          '491': {
+            label: 'Skilled Work Regional (Provisional)',
+            type: 'OVHC — Workers Cover',
+            explanation: 'The 491 is a regional provisional visa. You must hold compliant OVHC for the full duration. Cover must include hospital and medical treatment equivalent to public hospital access.',
+            note: 'You are required to live and work in a designated regional area. Make sure your insurer’s hospital network includes your region.',
+            providers: ['Allianz Care', 'AIA', 'nib', 'Bupa', 'Medibank'],
+          },
+          'bridging': {
+            label: 'Bridging Visa (A / B / C / E)',
+            type: 'OVHC — Visitors or Workers Cover (depends on previous visa)',
+            explanation: 'If you held a work visa (482, 491 etc.) and are now on a bridging visa, continue your OVHC without a gap. If you held a student visa (500), switch to OVHC as soon as your student visa becomes inactive. Do not let your cover lapse.',
+            note: 'Bridging visa holders are among the most at risk of a coverage gap. Your bridging visa itself does not automatically maintain your health cover — you must manage this yourself.',
+            providers: ['nib', 'Bupa', 'Allianz Care', 'AIA', 'Medibank'],
+          },
+          'other': {
+            label: 'Other Work Visa (407, 408, 494 etc.)',
+            type: 'OVHC — Workers Cover',
+            explanation: 'Most temporary work and training visas include Visa Condition 8501, requiring compliant health insurance. Check your visa grant letter to confirm whether condition 8501 applies to you.',
+            note: 'If you are unsure what condition applies to your visa, check your visa grant notice via VEVO (Visa Entitlement Verification Online).',
+            providers: ['Allianz Care', 'nib', 'Bupa', 'AIA', 'Medibank'],
+          },
+        },
+      }));
+    });
+  </script>
+  <script is:inline defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <!-- ── 1. Hero ── -->
+  <section class="px-6 sm:px-10 pt-8 pb-12 sm:pt-16 sm:pb-24">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Health insurance</p>
+      <h1 class="font-serif text-4xl sm:text-6xl font-light tracking-tight text-ink leading-[1.05] max-w-4xl">
+        Health insurance for visa holders in
+        <span class="relative inline-block">
+          Australia.
+          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
+        </span>
+      </h1>
+      <p class="text-lg sm:text-xl text-muted mt-8 max-w-2xl leading-relaxed">
+        Find the right OSHC or OVHC cover for your visa — from student to skilled worker to bridging visa. We break it down simply.
+      </p>
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a href="#visa-finder"
+          class="inline-flex items-center gap-2 bg-ink text-paper px-7 py-4 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
+          Find my cover <span aria-hidden="true">→</span>
+        </a>
+        <a href="#providers"
+          class="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-medium text-ink border border-black/10 hover:bg-warm transition-colors">
+          Compare providers
+        </a>
+      </div>
+      <p class="mt-6 text-xs text-faint flex items-start gap-2 max-w-2xl leading-relaxed">
+        <span>ⓘ</span>
+        <span>Arrivly provides general information only. Always verify with your provider before purchasing.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 2. Visa Finder ── -->
+  <section id="visa-finder" class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-3 leading-[1.1]">
+        What visa are you on?
+      </h2>
+      <p class="text-base text-muted mb-10 max-w-2xl">
+        Select your visa subclass to see which type of health insurance you need.
+      </p>
+
+      <div x-data="visaFinder">
+
+        <!-- Visa cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <button @click="selected = '500'"
+            :class="selected === '500' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Subclass 500</p>
+            <p class="font-semibold text-lg text-ink mb-1">Student Visa</p>
+            <p class="text-sm text-muted">Currently studying in Australia</p>
+          </button>
+
+          <button @click="selected = '485'"
+            :class="selected === '485' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Subclass 485</p>
+            <p class="font-semibold text-lg text-ink mb-1">Temporary Graduate Visa</p>
+            <p class="text-sm text-muted">Just finished your degree</p>
+          </button>
+
+          <button @click="selected = '482'"
+            :class="selected === '482' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Subclass 482</p>
+            <p class="font-semibold text-lg text-ink mb-1">Skills in Demand (TSS)</p>
+            <p class="text-sm text-muted">Employer-sponsored worker</p>
+          </button>
+
+          <button @click="selected = '491'"
+            :class="selected === '491' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Subclass 491</p>
+            <p class="font-semibold text-lg text-ink mb-1">Skilled Work Regional</p>
+            <p class="text-sm text-muted">Working or living regionally</p>
+          </button>
+
+          <button @click="selected = 'bridging'"
+            :class="selected === 'bridging' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Bridging</p>
+            <p class="font-semibold text-lg text-ink mb-1">Bridging Visa (A/B/C/E)</p>
+            <p class="text-sm text-muted">Waiting on a new visa decision</p>
+          </button>
+
+          <button @click="selected = 'other'"
+            :class="selected === 'other' ? 'border-ink bg-warm' : 'border-black/10 bg-white'"
+            class="text-left border rounded-2xl p-6 hover:border-black/30 hover:bg-warm transition-all duration-150">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">Other</p>
+            <p class="font-semibold text-lg text-ink mb-1">Other Work Visa</p>
+            <p class="text-sm text-muted">407, 408, 494 and others</p>
+          </button>
+
+        </div>
+
+        <!-- Result panel (data-driven via Alpine) -->
+        <div x-show="selected"
+          x-transition:enter="transition ease-out duration-250"
+          x-transition:enter-start="opacity-0 -translate-y-2"
+          x-transition:enter-end="opacity-100 translate-y-0"
+          class="mt-8 bg-warm rounded-3xl p-7 sm:p-10 border border-black/5"
+          x-cloak>
+
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">You need</p>
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-1 leading-[1.2]"
+            x-text="selected ? visas[selected].type : ''"></h3>
+          <p class="text-sm text-muted mb-6" x-text="selected ? visas[selected].label : ''"></p>
+
+          <p class="text-base text-ink leading-relaxed mb-5"
+            x-text="selected ? visas[selected].explanation : ''"></p>
+
+          <div class="px-4 py-3 rounded-xl bg-accent/20 border-l-4 border-accent mb-6">
+            <p class="text-sm text-ink leading-relaxed">
+              <strong>Heads up:</strong>
+              <span x-text="selected ? visas[selected].note : ''"></span>
+            </p>
+          </div>
+
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Providers</p>
+          <div class="flex flex-wrap gap-2 mb-7">
+            <template x-for="p in (selected ? visas[selected].providers : [])">
+              <span class="text-sm bg-white border border-black/10 rounded-full px-3 py-1 text-ink" x-text="p"></span>
+            </template>
+          </div>
+
+          <a href="#providers"
+            class="inline-flex items-center gap-2 bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
+            Compare providers <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. OSHC vs OVHC ── -->
+  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-3 leading-[1.1]">
+        OSHC vs OVHC — what's the difference?
+      </h2>
+      <p class="text-base text-muted mb-10 max-w-2xl">
+        Two acronyms, two different policies. Which one applies depends on your visa.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- OSHC card -->
+        <div class="bg-warm rounded-3xl p-7 sm:p-8 border border-black/5">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">For students</p>
+          <h3 class="font-serif text-3xl font-light text-ink mb-1 leading-tight">OSHC</h3>
+          <p class="text-sm text-muted mb-7">Overseas Student Health Cover</p>
+
+          <dl class="space-y-5 text-sm">
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Who needs it</dt>
+              <dd class="text-ink">Student visa (500) holders</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Mandatory?</dt>
+              <dd class="text-ink">Yes — visa condition</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Covers</dt>
+              <dd class="text-ink">Hospital, medical, pharmaceuticals</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Providers</dt>
+              <dd class="text-ink">ahm, Bupa, nib, Medibank, Allianz</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Starts from</dt>
+              <dd class="text-ink font-semibold text-base">~$35/month</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- OVHC card -->
+        <div class="bg-warm rounded-3xl p-7 sm:p-8 border border-black/5">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-2">For everyone else</p>
+          <h3 class="font-serif text-3xl font-light text-ink mb-1 leading-tight">OVHC</h3>
+          <p class="text-sm text-muted mb-7">Overseas Visitors Health Cover</p>
+
+          <dl class="space-y-5 text-sm">
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Who needs it</dt>
+              <dd class="text-ink">All other temporary visa holders</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Mandatory?</dt>
+              <dd class="text-ink">Yes — if Condition 8501 applies</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Covers</dt>
+              <dd class="text-ink">Hospital, medical (extras vary by plan)</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Providers</dt>
+              <dd class="text-ink">AIA, nib, Bupa, Allianz Care, Medibank, HCF</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-1">Starts from</dt>
+              <dd class="text-ink font-semibold text-base">~$60/month</dd>
+            </div>
+          </dl>
+        </div>
+
+      </div>
+
+      <!-- Condition 8501 callout -->
+      <div class="mt-8 bg-accent/20 border-l-4 border-accent rounded-r-2xl p-5 sm:p-6">
+        <p class="text-sm sm:text-base text-ink leading-relaxed">
+          ⚠️ <strong>Visa Condition 8501</strong> — If your visa includes this condition, you must maintain adequate health insurance for your entire stay in Australia. Breaching this condition can affect your visa status.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. Providers ── -->
+  <section id="providers" class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-3 leading-[1.1]">
+        Compare providers
+      </h2>
+      <p class="text-base text-muted mb-10 max-w-2xl">
+        All providers below offer policies compliant with Visa Condition 8501.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- Medibank -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">M</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">Medibank</h3>
+          <p class="text-xs text-faint mb-5">Both OSHC + OVHC</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 500, 485, 482, 491, Bridging</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Large hospital network across Australia.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$40</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+        <!-- Bupa -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">B</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">Bupa</h3>
+          <p class="text-xs text-faint mb-5">Both OSHC + OVHC</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 500, 485, 482, 491, Bridging</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Instant policy certificate on purchase.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$38</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+        <!-- nib -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">n</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">nib</h3>
+          <p class="text-xs text-faint mb-5">Both OSHC + OVHC</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 500, 485, 482, 491, Bridging</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Fast online setup, strong regional coverage.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$37</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+        <!-- Allianz Care -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">A</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">Allianz Care</h3>
+          <p class="text-xs text-faint mb-5">Both OSHC + OVHC</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 500, 485, 482, 491, 494, Bridging</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Competitive pricing, good for regional visas.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$35</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+        <!-- AIA -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">A</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">AIA</h3>
+          <p class="text-xs text-faint mb-5">OVHC only</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 485, 482, 491, Bridging</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Includes wellness perks and member benefits.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$60</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+        <!-- ahm -->
+        <div class="bg-white rounded-3xl p-7 border border-black/5 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-warm flex items-center justify-center mb-6">
+            <span class="font-serif text-xl font-medium text-ink">a</span>
+          </div>
+          <h3 class="font-serif text-2xl font-light text-ink mb-1 leading-tight">ahm</h3>
+          <p class="text-xs text-faint mb-5">OSHC only</p>
+          <p class="text-sm text-muted mb-2"><span class="text-faint">Visa types:</span> 500</p>
+          <p class="text-sm text-ink mb-5 leading-relaxed flex-1">Simple, affordable student cover.</p>
+          <div class="flex items-baseline gap-2 mb-5">
+            <span class="text-2xl font-bold text-ink">~$35</span>
+            <span class="text-sm text-faint">/mo</span>
+          </div>
+          <a href="#" class="block text-center border border-black/15 rounded-full py-2.5 text-sm font-medium text-ink hover:bg-warm hover:border-ink transition-colors">
+            Get quote →
+          </a>
+        </div>
+
+      </div>
+
+      <p class="mt-8 text-xs text-faint leading-relaxed max-w-3xl">
+        Prices shown are indicative starting prices for a single adult. Actual premiums vary by age, cover level, excess, and policy duration. Always get a direct quote from the provider.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 5. Common Mistakes ── -->
+  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-12 leading-[1.1]">
+        Common mistakes to avoid
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">⏰</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Letting your cover lapse</h3>
+          <p class="text-sm text-muted leading-relaxed">Even a single day without cover can breach Visa Condition 8501. Set a reminder before your policy expires.</p>
+        </div>
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">🎓</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Keeping OSHC after your student visa ends</h3>
+          <p class="text-sm text-muted leading-relaxed">OSHC is only valid while your 500 visa is active. Switch to OVHC before transitioning to a 485 or work visa.</p>
+        </div>
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">💼</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Assuming your employer covers you</h3>
+          <p class="text-sm text-muted leading-relaxed">On a 482 visa, some employers arrange cover — many don't. Always confirm in writing before assuming you're covered.</p>
+        </div>
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">💸</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Choosing the cheapest plan without checking compliance</h3>
+          <p class="text-sm text-muted leading-relaxed">Not all cheap plans meet Visa Condition 8501. Look for "8501 compliant" on the policy description.</p>
+        </div>
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">👨‍👩‍👧</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Not covering dependants</h3>
+          <p class="text-sm text-muted leading-relaxed">If your partner or children are on your visa, they must be covered under the same or separate compliant policy.</p>
+        </div>
+
+        <div class="bg-warm rounded-2xl p-7 border border-black/5">
+          <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center mb-5 text-lg">✈️</div>
+          <h3 class="font-serif text-xl font-medium text-ink mb-2 leading-tight">Waiting until arrival to buy</h3>
+          <p class="text-sm text-muted leading-relaxed">For student visas especially, OSHC should be purchased before you board your flight to Australia.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. FAQ ── -->
+  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-12 leading-[1.1]">
+        Frequently asked questions
+      </h2>
+
+      <div x-data="{ open: null }" class="border-t border-black/10">
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 1 ? null : 1"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">Do I need health insurance if I'm from a country with a reciprocal health agreement (e.g. UK, NZ)?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 1 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 1"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">Possibly not if you're eligible for Medicare, but if your visa includes Condition 8501 you still need compliant OVHC regardless of your nationality. Always check your visa grant notice.</p>
+          </div>
+        </div>
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 2 ? null : 2"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">Can I switch providers mid-policy?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 2 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 2"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">Yes, but be careful about waiting periods. If you switch, pre-existing condition waiting periods may reset with your new provider.</p>
+          </div>
+        </div>
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 3 ? null : 3"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">What happens if I don't have health cover and need to go to hospital?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 3 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 3"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">You may face significant out-of-pocket costs. Emergency treatment in a public hospital can cost thousands of dollars without cover.</p>
+          </div>
+        </div>
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 4 ? null : 4"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">Is my OSHC still valid on a bridging visa between my student visa and 485 application?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 4 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 4"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">Only while your student visa remains active. Once it becomes inactive (even on a bridging visa), you should switch to OVHC. Do not wait for the 485 to be granted.</p>
+          </div>
+        </div>
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 5 ? null : 5"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">How long should I buy cover for?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 5 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 5"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">At minimum, match your visa end date. For bridging visas, buy 3–6 months and extend if needed.</p>
+          </div>
+        </div>
+
+        <div class="border-b border-black/10">
+          <button @click="open = open === 6 ? null : 6"
+            class="w-full py-5 flex justify-between items-start text-left gap-4 group">
+            <span class="font-medium text-ink group-hover:text-muted transition-colors">Can my partner or children be added to my policy?</span>
+            <span class="text-2xl text-faint shrink-0 transition-transform duration-200"
+              :class="open === 6 ? 'rotate-45' : ''">+</span>
+          </button>
+          <div x-show="open === 6"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="pb-5"
+            x-cloak>
+            <p class="text-muted leading-relaxed">Yes. Most providers offer couple and family policies. Dependants must be covered too if they are on your visa.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. Page-level disclaimer ── -->
+  <section class="px-6 sm:px-10 py-12 border-t border-black/5">
+    <div class="max-w-4xl mx-auto">
+      <p class="text-xs text-faint leading-relaxed">
+        This page is provided for general information purposes only. Arrivly is not a licensed health insurance broker or financial adviser. Information about providers, pricing, and visa requirements is subject to change. Always verify requirements with the Department of Home Affairs and your chosen provider before purchasing. See our <a href="/disclaimer" class="text-ink underline decoration-2 decoration-accent underline-offset-2 hover:decoration-ink">General Disclaimer</a> for full details.
+      </p>
+    </div>
+  </section>
+
+  <!-- x-cloak hides Alpine-controlled elements until Alpine initializes -->
+  <style>[x-cloak] { display: none !important; }</style>
+
+</BaseLayout>

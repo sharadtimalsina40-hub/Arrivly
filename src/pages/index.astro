@@ -68,11 +68,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </span>
         </a>
 
-        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+        <a href="/health-insurance"
+          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl opacity-60">🏥</span>
-            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
-              Coming soon
+            <span class="text-4xl">🏥</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
+              Available now
             </span>
           </div>
           <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
@@ -81,8 +82,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p class="text-sm text-muted mb-6 leading-relaxed">
             Your visa requires it. But most students pay more than they need to. We'll show you the difference.
           </p>
-          <span class="text-sm text-faint">In development</span>
-        </div>
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+            Compare providers <span aria-hidden="true">→</span>
+          </span>
+        </a>
 
         <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
@@ -92,10 +95,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </span>
           </div>
           <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
-            Bank accounts
+            Banking &amp; Credit
           </h3>
           <p class="text-sm text-muted mb-6 leading-relaxed">
-            The wrong bank account costs you every time you send money home. We compare the fees nobody talks about.
+            Open your first Australian bank account, then build your credit history when you're ready. We cover every stage — from first account to first credit card.
           </p>
           <span class="text-sm text-faint">In development</span>
         </div>
