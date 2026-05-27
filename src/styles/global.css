@@ -95,3 +95,50 @@
   display: block;
   margin-bottom: 0.25rem;
 }
+.prose blockquote {
+  margin: 2rem 0;
+  padding: 1.5rem 1.75rem;
+  border-left: 4px solid var(--color-accent);
+  background: var(--color-warm);
+  border-radius: 0.5rem;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+.prose blockquote p { margin-bottom: 0.5rem; }
+.prose blockquote p:last-child { margin-bottom: 0; }
+.prose figure { margin: 2rem 0; }
+.prose figure img { display: block; width: 100%; }
+.prose figcaption { color: var(--color-faint); font-size: 0.8125rem; text-align: center; margin-top: 0.5rem; }
+.prose hr { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 2.5rem 0; }
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.9375rem;
+  overflow-x: auto;
+  display: block;
+}
+@media (min-width: 640px) {
+  .prose table { display: table; }
+}
+.prose th, .prose td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  vertical-align: top;
+}
+.prose thead th {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  border-bottom: 2px solid var(--color-ink);
+  background: transparent;
+}
+.prose tbody tr:hover { background: var(--color-warm); }
+.prose tbody td strong { color: var(--color-ink); }

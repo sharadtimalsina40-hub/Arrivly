@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout
+  title="Blog — Arrivly"
+  description="Honest guides for international students settling into Australia — SIM cards, health insurance, banking, money transfers and the small things nobody tells you.">
+
+  <section class="max-w-3xl mx-auto px-6 sm:px-8 pt-12 pb-8 sm:pt-20">
+    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Arrivly journal</p>
+    <h1 class="font-serif text-4xl sm:text-6xl font-light tracking-tight text-ink leading-[1.05] mb-4">
+      Things we wish we'd known
+    </h1>
+    <p class="text-lg text-muted leading-relaxed max-w-2xl">
+      Honest, plain-English guides for international students settling into Australia. Written by people who went through it themselves.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 sm:px-8 pb-20">
+    {posts.length === 0 ? (
+      <p class="text-muted py-12">No posts yet — check back soon.</p>
+    ) : (
+      <ul class="border-t border-black/10">
+        {posts.map((post) => (
+          <li class="border-b border-black/10">
+            <a href={`/blog/${post.id}`} class="block py-7 group">
+              <p class="text-xs text-faint tracking-wide mb-2">{dateFmt(post.data.pubDate)}</p>
+              <h2 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink group-hover:text-muted transition-colors leading-[1.2] mb-2">
+                {post.data.title}
+              </h2>
+              <p class="text-sm sm:text-base text-muted leading-relaxed">{post.data.description}</p>
+              <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink mt-4 group-hover:gap-3 transition-all">
+                Read article <span aria-hidden="true">→</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+</BaseLayout>

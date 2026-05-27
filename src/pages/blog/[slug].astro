@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const dateFmt = post.data.pubDate.toLocaleDateString('en-AU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={`${post.data.title} — Arrivly`} description={post.data.description}>
+
+  <article class="max-w-[760px] mx-auto px-6 sm:px-8 pt-10 pb-16 sm:pt-16 sm:pb-24">
+
+    <!-- Header -->
+    <header class="mb-10">
+      <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-faint hover:text-ink transition-colors mb-8">
+        <span aria-hidden="true">←</span> Back to blog
+      </a>
+      <p class="text-xs text-faint tracking-wide mb-3">{dateFmt} · {post.data.author}</p>
+      <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-ink leading-[1.1] mb-5">
+        {post.data.title}
+      </h1>
+      <p class="text-lg text-muted leading-relaxed">{post.data.description}</p>
+    </header>
+
+    <!-- Rendered markdown -->
+    <div class="prose">
+      <Content />
+    </div>
+
+    <!-- Footer CTA strip -->
+    <div class="mt-16 pt-10 border-t border-black/10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Next step</p>
+      <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-3 leading-[1.2]">
+        Find your best plan in 30 seconds.
+      </h3>
+      <p class="text-muted mb-6">Answer three quick questions — we'll rank 12 verified Australian plans by how well they actually fit you.</p>
+      <a href="/sim-cards"
+        class="inline-flex items-center gap-2 bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
+        Compare SIM cards <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </article>
+
+</BaseLayout>
