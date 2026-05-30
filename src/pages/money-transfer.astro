@@ -1,0 +1,641 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import data from '../data/money-transfer.json';
+
+const providers = data.providers;
+const serialisedProviders = JSON.stringify(providers);
+---
+
+<BaseLayout
+  title="Money Transfer Comparison — Arrivly"
+  description="Send money home from Australia in 3 questions. 5 verified services ranked by what actually saves you the most.">
+
+  <div class="flex flex-col items-center px-4 pt-4 pb-16 sm:pt-8 sm:pb-24">
+
+    <!-- Page intro -->
+    <div class="w-full max-w-5xl mb-8 sm:mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Money transfer</p>
+      <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-ink leading-[1.1] mb-4">
+        Send money home in <span class="relative inline-block">
+          three questions.
+          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
+        </span>
+      </h1>
+      <p class="text-base text-muted leading-relaxed max-w-xl">
+        Tell us where, how much, and what matters most. We'll rank 5 verified services by what actually saves you the most.
+      </p>
+    </div>
+
+    <!-- ── Wizard card ── -->
+    <div id="wizard" class="w-full max-w-5xl bg-white rounded-3xl border border-black/5 overflow-hidden">
+
+      <!-- Segmented progress -->
+      <div class="flex gap-1.5 px-8 pt-6">
+        <div class="progress-seg h-1 flex-1 rounded-full bg-ink transition-colors duration-300"></div>
+        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
+        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
+      </div>
+
+      <!-- Header row -->
+      <div class="flex items-center justify-between px-8 pt-6 pb-0">
+        <span id="step-label" class="text-sm text-muted">Question 1 of 3</span>
+        <button id="restart-btn" class="hidden text-sm text-faint hover:text-ink transition-colors">
+          Start over
+        </button>
+      </div>
+
+      <div class="px-6 pt-8 pb-12 sm:px-12 sm:pt-10 sm:pb-14">
+
+        <!-- ── Step 1 — country (typeahead search) ── -->
+        <div id="step-1">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-8 leading-[1.15]">Where are you sending money?</h2>
+
+          <div class="max-w-[500px] mx-auto">
+            <!-- Search input + dropdown -->
+            <div class="relative">
+              <input
+                id="q1-search"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Search your country e.g. Nepal, India..."
+                class="w-full px-5 py-4 border border-black/15 rounded-full bg-white text-ink placeholder:text-faint focus:outline-none focus:border-ink transition-colors text-base"
+              />
+              <div id="q1-dropdown"
+                class="hidden absolute left-0 right-0 mt-2 max-h-72 overflow-y-auto bg-white border border-black/10 rounded-2xl shadow-sm z-10">
+                <!-- populated by JS -->
+              </div>
+            </div>
+
+            <!-- Selected chip -->
+            <div id="q1-selected" class="hidden mt-4 flex items-center gap-2">
+              <span class="text-xs text-faint">Sending to:</span>
+              <span class="inline-flex items-center gap-2 bg-warm border border-ink rounded-full px-4 py-1.5 text-sm font-medium text-ink">
+                <span id="q1-chip-text"></span>
+                <button id="q1-chip-clear" type="button" class="text-faint hover:text-ink leading-none" aria-label="Clear selection">×</button>
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-10 flex justify-end">
+            <button id="q1-continue" disabled
+              class="px-8 py-3 rounded-full text-sm font-medium bg-ink text-paper transition-all duration-150
+                     disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-ink/85">
+              Continue →
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Step 2 — amount (single-select, auto-advance) ── -->
+        <div id="step-2" class="hidden">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-10 leading-[1.15]">How much are you sending?</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="amount" data-value="small">
+              <span class="text-2xl mb-4 block">🪙</span>
+              <p class="font-semibold text-lg text-ink mb-1">Under $200</p>
+              <p class="text-sm text-muted">Small top-ups</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="amount" data-value="medium">
+              <span class="text-2xl mb-4 block">💳</span>
+              <p class="font-semibold text-lg text-ink mb-1">$200 – $1,000</p>
+              <p class="text-sm text-muted">Regular monthly transfers</p>
+            </button>
+            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-step="2" data-key="amount" data-value="large">
+              <span class="text-2xl mb-4 block">🏦</span>
+              <p class="font-semibold text-lg text-ink mb-1">Over $1,000</p>
+              <p class="text-sm text-muted">Lump sums &amp; tuition</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Step 3 — priorities (multi-select, Continue button) ── -->
+        <div id="step-3" class="hidden">
+          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-2 leading-[1.15]">What matters most?</h2>
+          <p class="text-sm text-faint mb-8">Select all that apply.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="lowest-cost">
+              <span class="text-2xl mb-4 block">💰</span>
+              <p class="font-semibold text-lg text-ink mb-1">Lowest cost</p>
+              <p class="text-sm text-muted">Squeeze every dollar</p>
+            </button>
+            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="fastest">
+              <span class="text-2xl mb-4 block">⚡</span>
+              <p class="font-semibold text-lg text-ink mb-1">Fastest transfer</p>
+              <p class="text-sm text-muted">Arrives in minutes</p>
+            </button>
+            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
+              data-value="cash-pickup">
+              <span class="text-2xl mb-4 block">💵</span>
+              <p class="font-semibold text-lg text-ink mb-1">Cash pickup</p>
+              <p class="text-sm text-muted">Family collects in person</p>
+            </button>
+          </div>
+
+          <div class="mt-8 flex justify-end">
+            <button id="q3-continue" disabled
+              class="px-8 py-3 rounded-full text-sm font-medium bg-ink text-paper transition-all duration-150
+                     disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-ink/85">
+              See results →
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Results ── -->
+        <div id="step-results" class="hidden">
+          <div id="top-match-container"></div>
+          <div id="other-options-section" class="hidden mt-10">
+            <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-4">Other options</h3>
+            <div id="other-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- ── Bank warning — always shown on results ── -->
+          <div id="bank-warning" class="mt-10 p-6 sm:p-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl mt-0.5">⚠</span>
+              <div>
+                <p class="font-semibold text-ink mb-2">Sending via your bank? You're losing money.</p>
+                <p id="bank-warning-amount" class="text-sm text-muted leading-relaxed mb-2">
+                  Big-four Australian banks (CBA, Westpac, ANZ, NAB) typically charge a <strong class="text-ink">$20–32 flat fee plus a 3–5% exchange rate markup</strong>. That's around <strong class="text-ink">$40–$45 on a $500 transfer</strong> in fees and poor exchange rates — versus around $5–15 through any of the services above.
+                </p>
+                <p class="text-sm text-muted leading-relaxed">
+                  We've left banks out of the ranking because they consistently rank last by cost. Set up one of the services above before your next transfer.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p class="mt-10 text-center text-xs text-faint">
+            ✱ Data verified 29 May 2026 · Fees and rates may change
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</BaseLayout>
+
+<script define:vars={{ serialisedProviders }}>
+  const PROVIDERS = JSON.parse(serialisedProviders);
+
+  // ── State ──────────────────────────────────────────────────────────────
+  const answers = { country: null, amount: null, priorities: [] };
+
+  // ── Country list for Q1 typeahead ──────────────────────────────────────
+  // Alphabetical. Each entry has name, ISO code and flag emoji.
+  // Codes that no provider supports fall through to "OTHER" at selection
+  // time so the filter behaves the same as picking "Other" did before.
+  const COUNTRIES = [
+    { name: 'Afghanistan',       code: 'AF', flag: '🇦🇫' },
+    { name: 'Bangladesh',        code: 'BD', flag: '🇧🇩' },
+    { name: 'China',             code: 'CN', flag: '🇨🇳' },
+    { name: 'Colombia',          code: 'CO', flag: '🇨🇴' },
+    { name: 'Ethiopia',          code: 'ET', flag: '🇪🇹' },
+    { name: 'Fiji',              code: 'FJ', flag: '🇫🇯' },
+    { name: 'India',             code: 'IN', flag: '🇮🇳' },
+    { name: 'Indonesia',         code: 'ID', flag: '🇮🇩' },
+    { name: 'Japan',             code: 'JP', flag: '🇯🇵' },
+    { name: 'Malaysia',          code: 'MY', flag: '🇲🇾' },
+    { name: 'Myanmar',           code: 'MM', flag: '🇲🇲' },
+    { name: 'Nepal',             code: 'NP', flag: '🇳🇵' },
+    { name: 'Nigeria',           code: 'NG', flag: '🇳🇬' },
+    { name: 'Pakistan',          code: 'PK', flag: '🇵🇰' },
+    { name: 'Papua New Guinea',  code: 'PG', flag: '🇵🇬' },
+    { name: 'Philippines',       code: 'PH', flag: '🇵🇭' },
+    { name: 'South Korea',       code: 'KR', flag: '🇰🇷' },
+    { name: 'Sri Lanka',         code: 'LK', flag: '🇱🇰' },
+    { name: 'Thailand',          code: 'TH', flag: '🇹🇭' },
+    { name: 'Timor-Leste',       code: 'TL', flag: '🇹🇱' },
+    { name: 'United Kingdom',    code: 'GB', flag: '🇬🇧' },
+    { name: 'United States',     code: 'US', flag: '🇺🇸' },
+    { name: 'Vietnam',           code: 'VN', flag: '🇻🇳' },
+    { name: 'Zimbabwe',          code: 'ZW', flag: '🇿🇼' },
+  ];
+
+  // Sentinel for the always-visible "Other" row at the bottom of the dropdown
+  const OTHER_ROW = { name: 'Other', code: 'OTHER', flag: '🌍' };
+
+  // Codes actually supported by ≥1 provider — anything not in this set
+  // gets treated as 'OTHER' when filtering.
+  const SUPPORTED_CODES = new Set();
+  PROVIDERS.forEach(p => p.supported_countries.forEach(c => SUPPORTED_CODES.add(c)));
+
+  // ── DOM refs ───────────────────────────────────────────────────────────
+  const stepLabel    = document.getElementById('step-label');
+  const restartBtn   = document.getElementById('restart-btn');
+  const progressSegs = document.querySelectorAll('.progress-seg');
+  const q1Search     = document.getElementById('q1-search');
+  const q1Dropdown   = document.getElementById('q1-dropdown');
+  const q1Selected   = document.getElementById('q1-selected');
+  const q1ChipText   = document.getElementById('q1-chip-text');
+  const q1ChipClear  = document.getElementById('q1-chip-clear');
+  const q1Continue   = document.getElementById('q1-continue');
+  const q3Continue   = document.getElementById('q3-continue');
+  const bankWarning  = document.getElementById('bank-warning-amount');
+
+  const SELECTED_CLASSES = ['border-ink', 'bg-warm'];
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function feeDisplay(p) {
+    if (p.fee_aud === 0 && p.fee_percent === 0) return 'Free';
+    if (p.fee_percent > 0 && p.fee_aud > 0) return '$' + p.fee_aud.toFixed(2) + ' + ' + p.fee_percent + '%';
+    if (p.fee_percent > 0) return p.fee_percent + '%';
+    return '$' + p.fee_aud.toFixed(2);
+  }
+
+  function markupDisplay(p) {
+    return p.rate_markup_percent === 0 ? 'Mid-market' : '+' + p.rate_markup_percent + '%';
+  }
+
+  function ctaUrl(p) {
+    return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? p.affiliate_url : p.official_url;
+  }
+  function ctaRel(p) {
+    return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? 'sponsored noopener' : 'noopener';
+  }
+
+  function shortSpeed(s) {
+    // Strip parens & trailing range — keep the first segment for the stat tile
+    return s.split('(')[0].split(' to ')[0].trim();
+  }
+
+  function providerInitial(p) {
+    return p.name.charAt(0);
+  }
+
+  // ── Progress ───────────────────────────────────────────────────────────
+  function setProgress(step) {
+    const fill = step === 'results' ? 3 : step;
+    progressSegs.forEach((seg, i) => {
+      seg.classList.toggle('bg-ink', i < fill);
+      seg.classList.toggle('bg-black/10', i >= fill);
+    });
+  }
+
+  // ── Hard filters ───────────────────────────────────────────────────────
+  function filterProviders() {
+    return PROVIDERS.filter(p => {
+      // Cash pickup priority → must offer cash pickup
+      if (answers.priorities.includes('cash-pickup') && !p.transfer_methods.includes('cash_pickup')) return false;
+      // Amount → must support that tier (knocks out OFX for "small")
+      if (answers.amount && !p.supports_amount.includes(answers.amount)) return false;
+      // Country → must support (OTHER skips filter)
+      if (answers.country && answers.country !== 'OTHER' && !p.supported_countries.includes(answers.country)) return false;
+      return true;
+    });
+  }
+
+  // ── Scoring (post-filter) ──────────────────────────────────────────────
+  function scoreProvider(p) {
+    let score = 100;
+
+    // ── Lowest cost — heavily penalise markup + fees
+    if (answers.priorities.includes('lowest-cost')) {
+      score -= p.rate_markup_percent * 30;   // 3pt per 0.1% markup
+      score -= p.fee_aud * 2;                // 2pt per $1 flat fee
+      score -= p.fee_percent * 10;           // 10pt per 1% percent fee
+    }
+
+    // ── Fastest — reward speed tier
+    if (answers.priorities.includes('fastest')) {
+      const bonus = { 'very-fast': 30, 'fast': 20, 'moderate': 10, 'slow': 0 };
+      score += bonus[p.speed_tier] || 0;
+    }
+
+    // ── Cash pickup — reward providers whose business this actually is
+    if (answers.priorities.includes('cash-pickup')) {
+      if (p.best_for.includes('cash-pickup')) score += 15;
+    }
+
+    // ── Country alignment — small bonus when explicit (filter already passed)
+    if (answers.country && answers.country !== 'OTHER' && p.supported_countries.includes(answers.country)) {
+      score += 10;
+    }
+
+    // ── Always-on tiebreakers
+    const speedTinyBonus = { 'very-fast': 5, 'fast': 3, 'moderate': 2, 'slow': 0 };
+    score += speedTinyBonus[p.speed_tier] || 0;
+    score -= p.rate_markup_percent * 0.5;
+
+    return score;
+  }
+
+  // ── Card builders ──────────────────────────────────────────────────────
+  function stat(value, label) {
+    return '<div>' +
+      '<p class="text-xl sm:text-2xl font-bold text-ink">' + value + '</p>' +
+      '<p class="text-sm text-muted mt-0.5">' + label + '</p>' +
+    '</div>';
+  }
+
+  function verificationFooter(p) {
+    return '<p class="text-xs text-faint mt-5">Data verified: ' + p.last_verified + ' · ' + p.verified_source + '</p>';
+  }
+
+  function logoBadge(p) {
+    return '<span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-warm font-serif text-xl font-medium text-ink shrink-0">' + providerInitial(p) + '</span>';
+  }
+
+  function buildTopCard(p) {
+    const url = ctaUrl(p);
+    return `
+      <div>
+        <div class="inline-flex mb-4">
+          <span class="bg-accent text-ink px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.18em]">
+            Your top match
+          </span>
+        </div>
+
+        <div class="bg-warm rounded-3xl p-7 sm:p-9 border border-black/5">
+          <div class="flex items-start justify-between gap-4 mb-8">
+            <div class="flex items-start gap-4">
+              ${logoBadge(p)}
+              <div>
+                <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink leading-[1.15]">${p.name}</h3>
+                <p class="text-sm text-faint mt-2">${p.tagline}</p>
+                <p class="text-xs text-faint mt-0.5">${p.method_labels}</p>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-2xl sm:text-3xl font-bold text-ink">${feeDisplay(p)}</span>
+              <span class="text-xs text-faint block mt-1">per transfer</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-6 py-7 border-y border-black/5 mb-1">
+            ${stat(markupDisplay(p), 'Exchange rate')}
+            ${stat(shortSpeed(p.typical_speed), 'Typical speed')}
+            ${stat(p.best_for[0].replace('-', ' '), 'Best for')}
+          </div>
+
+          <ul class="space-y-2.5 mt-7 mb-8">
+            ${p.pros.map(item => `<li class="flex items-start gap-3 text-sm text-muted"><span class="mt-0.5 shrink-0 text-faint">✓</span>${item}</li>`).join('')}
+          </ul>
+
+          <a href="${url}" target="_blank" rel="${ctaRel(p)}"
+            class="flex items-center justify-center gap-2 w-full bg-ink text-paper font-medium text-sm py-4 rounded-full hover:bg-ink/85 transition-colors">
+            Send money via ${p.name} <span aria-hidden="true">→</span>
+          </a>
+
+          ${verificationFooter(p)}
+        </div>
+      </div>`;
+  }
+
+  function buildAltCard(p) {
+    const url = ctaUrl(p);
+    return `
+      <div class="bg-white rounded-2xl p-6 border border-black/5">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-start gap-3">
+            ${logoBadge(p)}
+            <div>
+              <p class="font-semibold text-ink">${p.name}</p>
+              <p class="text-xs text-faint mt-0.5">${p.tagline}</p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-bold text-ink">${feeDisplay(p)}</span>
+            <span class="text-xs text-faint block">per transfer</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted mb-4">
+          <span>${markupDisplay(p)} rate</span>
+          <span>·</span>
+          <span>${shortSpeed(p.typical_speed)}</span>
+          <span>·</span>
+          <span>${p.method_labels.split(' · ')[0]}</span>
+        </div>
+        <a href="${url}" target="_blank" rel="${ctaRel(p)}"
+          class="flex items-center justify-center gap-1.5 w-full border border-black/15 text-ink text-sm font-medium py-2.5 rounded-full hover:border-ink hover:bg-warm transition-colors">
+          Send via ${p.name} <span aria-hidden="true">→</span>
+        </a>
+        <p class="text-xs text-faint mt-3">Verified ${p.last_verified}</p>
+      </div>`;
+  }
+
+  // ── Bank warning text — adapts to selected amount ─────────────────────
+  function updateBankWarning() {
+    const base = 'Big-four Australian banks (CBA, Westpac, ANZ, NAB) typically charge a <strong class="text-ink">$20–32 flat fee plus a 3–5% exchange rate markup</strong>.';
+    let text;
+    if (answers.amount === 'small') {
+      text = base + " That's around <strong class=\"text-ink\">$25–$30 on a $200 transfer</strong> in fees and poor exchange rates — versus around $2–5 through any of the services above.";
+    } else if (answers.amount === 'large') {
+      text = base + " That's around <strong class=\"text-ink\">$100+ on a $2,000 transfer</strong> in fees and poor exchange rates — versus around $10–25 through any of the services above.";
+    } else {
+      text = base + " That's around <strong class=\"text-ink\">$40–$45 on a $500 transfer</strong> in fees and poor exchange rates — versus around $5–15 through any of the services above.";
+    }
+    bankWarning.innerHTML = text;
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────
+  function goToStep(n) {
+    document.querySelectorAll('[id^="step-"]').forEach(el => el.classList.add('hidden'));
+
+    if (n === 'results') {
+      document.getElementById('step-results').classList.remove('hidden');
+      setProgress('results');
+      stepLabel.textContent = 'Results';
+      restartBtn.classList.remove('hidden');
+      renderResults();
+    } else {
+      document.getElementById('step-' + n).classList.remove('hidden');
+      setProgress(n);
+      stepLabel.textContent = 'Question ' + n + ' of 3';
+      restartBtn.classList.toggle('hidden', n === 1);
+    }
+  }
+
+  function renderResults() {
+    const topEl   = document.getElementById('top-match-container');
+    const altSec  = document.getElementById('other-options-section');
+    const altCont = document.getElementById('other-options-container');
+
+    updateBankWarning();
+
+    const pool = filterProviders()
+      .map(p => ({ p, score: scoreProvider(p) }))
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.p);
+
+    if (pool.length === 0) {
+      topEl.innerHTML = `
+        <div class="text-center py-12">
+          <p class="text-muted mb-4">No services match your exact criteria.</p>
+          <button onclick="document.getElementById('restart-btn').click()"
+            class="text-sm font-medium text-ink underline decoration-2 decoration-accent underline-offset-2">
+            Start over and adjust your answers
+          </button>
+        </div>`;
+      altSec.classList.add('hidden');
+      return;
+    }
+
+    const top3 = pool.slice(0, 3);
+    topEl.innerHTML = buildTopCard(top3[0]);
+
+    const rest = top3.slice(1);
+    if (rest.length > 0) {
+      altCont.innerHTML = rest.map(buildAltCard).join('');
+      altSec.classList.remove('hidden');
+    } else {
+      altSec.classList.add('hidden');
+    }
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────
+  restartBtn.addEventListener('click', () => {
+    answers.country    = null;
+    answers.amount     = null;
+    answers.priorities = [];
+    document.querySelectorAll('.q3-btn, .choice-btn').forEach(b =>
+      b.classList.remove(...SELECTED_CLASSES)
+    );
+    clearCountrySelection();
+    q3Continue.disabled = true;
+    goToStep(1);
+  });
+
+  // ── Q1 country typeahead ───────────────────────────────────────────────
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function countryItemHTML(c, isOther) {
+    return '<button type="button" class="country-item w-full text-left px-4 py-2.5 text-sm hover:bg-warm transition-colors flex items-center gap-3 '
+      + (isOther ? 'border-t border-black/5 text-muted' : 'text-ink')
+      + '" data-name="' + escapeHtml(c.name) + '" data-code="' + escapeHtml(c.code) + '">'
+      + '<span class="text-lg leading-none">' + (c.flag || '🌍') + '</span>'
+      + '<span>' + escapeHtml(c.name) + '</span>'
+      + '</button>';
+  }
+
+  function renderDropdown(query) {
+    const q = (query || '').trim().toLowerCase();
+    const filtered = q
+      ? COUNTRIES.filter(c => c.name.toLowerCase().includes(q))
+      : COUNTRIES.slice();
+
+    let html = '';
+    if (filtered.length === 0) {
+      html += '<p class="px-4 py-3 text-sm text-faint">No matches — pick "Other" below.</p>';
+    } else {
+      html += filtered.map(c => countryItemHTML(c, false)).join('');
+    }
+    // "Other" always appears at the bottom regardless of filter
+    html += countryItemHTML(OTHER_ROW, true);
+
+    q1Dropdown.innerHTML = html;
+
+    q1Dropdown.querySelectorAll('.country-item').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        // mousedown (not click) so we beat the document click-outside handler
+        e.preventDefault();
+        selectCountry({ name: el.dataset.name, code: el.dataset.code });
+      });
+    });
+  }
+
+  function openDropdown() {
+    q1Dropdown.classList.remove('hidden');
+  }
+  function closeDropdown() {
+    q1Dropdown.classList.add('hidden');
+  }
+
+  function selectCountry(c) {
+    // Map unsupported codes → 'OTHER' so the filter behaves as before
+    const filterCode = (c.code === 'OTHER' || !SUPPORTED_CODES.has(c.code)) ? 'OTHER' : c.code;
+    answers.country = filterCode;
+
+    q1ChipText.textContent = c.name;
+    q1Selected.classList.remove('hidden');
+    q1Selected.classList.add('flex');
+
+    q1Search.value = '';
+    closeDropdown();
+    q1Continue.disabled = false;
+  }
+
+  function clearCountrySelection() {
+    answers.country = null;
+    q1ChipText.textContent = '';
+    q1Selected.classList.add('hidden');
+    q1Selected.classList.remove('flex');
+    q1Search.value = '';
+    q1Continue.disabled = true;
+    closeDropdown();
+  }
+
+  // Open + filter dropdown on every keypress (input event)
+  q1Search.addEventListener('input', () => {
+    renderDropdown(q1Search.value);
+    openDropdown();
+  });
+
+  // Re-open on focus IF user has already typed something
+  q1Search.addEventListener('focus', () => {
+    if (q1Search.value.length > 0) {
+      renderDropdown(q1Search.value);
+      openDropdown();
+    }
+  });
+
+  // Click outside closes dropdown
+  document.addEventListener('mousedown', (e) => {
+    if (q1Dropdown.classList.contains('hidden')) return;
+    if (q1Search.contains(e.target) || q1Dropdown.contains(e.target)) return;
+    closeDropdown();
+  });
+
+  // Clear chip
+  q1ChipClear.addEventListener('click', clearCountrySelection);
+
+  // Q1 continue
+  q1Continue.addEventListener('click', () => goToStep(2));
+
+  // ── Q2 single-select (auto-advance) ────────────────────────────────────
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step  = parseInt(btn.dataset.step);
+      const key   = btn.dataset.key;
+      const value = btn.dataset.value;
+
+      document.querySelectorAll('[data-step="' + step + '"]').forEach(b =>
+        b.classList.remove(...SELECTED_CLASSES)
+      );
+      btn.classList.add(...SELECTED_CLASSES);
+
+      answers[key] = value;
+
+      setTimeout(() => goToStep(step + 1), 180);
+    });
+  });
+
+  // ── Q3 multi-select ────────────────────────────────────────────────────
+  document.querySelectorAll('.q3-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.value;
+      const idx   = answers.priorities.indexOf(value);
+      if (idx === -1) {
+        answers.priorities.push(value);
+        btn.classList.add(...SELECTED_CLASSES);
+      } else {
+        answers.priorities.splice(idx, 1);
+        btn.classList.remove(...SELECTED_CLASSES);
+      }
+      q3Continue.disabled = answers.priorities.length === 0;
+    });
+  });
+
+  q3Continue.addEventListener('click', () => goToStep('results'));
+
+  // ── Init ───────────────────────────────────────────────────────────────
+  goToStep(1);
+</script>

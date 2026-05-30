@@ -103,11 +103,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <span class="text-sm text-faint">In development</span>
         </div>
 
-        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+        <a href="/money-transfer"
+          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl opacity-60">💸</span>
-            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
-              Coming soon
+            <span class="text-4xl">💸</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
+              Available now
             </span>
           </div>
           <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
@@ -116,8 +117,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p class="text-sm text-muted mb-6 leading-relaxed">
             Sending $500 home can cost $5 or $25 depending on who you use. We show you exactly who charges what.
           </p>
-          <span class="text-sm text-faint">In development</span>
-        </div>
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+            Compare services <span aria-hidden="true">→</span>
+          </span>
+        </a>
 
       </div>
     </div>

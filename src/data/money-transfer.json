@@ -1,0 +1,148 @@
+{
+  "_warning": "PLACEHOLDER ILLUSTRATIVE DATA — fees, exchange-rate markups, supported corridors and speed claims below are realistic but have NOT been individually verified against each provider's current pricing page. Cross-check every numeric value at the official_url before launch. Update last_verified and verified_source after each pass.",
+  "_affiliate_note": "affiliate_url: replace PLACEHOLDER with a Commission Factory / direct affiliate link once approved. When real, the button auto-switches to rel='sponsored noopener'. Until then, the CTA falls back to official_url with rel='noopener' so every button stays functional.",
+  "providers": [
+    {
+      "id": "wise",
+      "name": "Wise",
+      "tagline": "Real exchange rate, transparent fees",
+      "transfer_methods": ["bank_deposit"],
+      "method_labels": "Bank deposit",
+      "fee_aud": 1.20,
+      "fee_percent": 0.5,
+      "rate_markup_percent": 0,
+      "typical_speed": "Minutes to 1 business day",
+      "speed_tier": "fast",
+      "supports_amount": ["small", "medium", "large"],
+      "supported_countries": ["IN", "NP", "PH", "VN", "BD", "PK", "LK", "CN", "ID", "TH", "MY", "GB", "US"],
+      "best_for": ["lowest-cost", "large-transfer"],
+      "pros": [
+        "Uses the real mid-market exchange rate — no hidden markup",
+        "Transparent fee shown before you confirm the send",
+        "Multi-currency account with AUD, USD, GBP, EUR balances"
+      ],
+      "cons": [
+        "Bank deposit only — no cash pickup available",
+        "Recipient needs a bank account"
+      ],
+      "affiliate_url": "PLACEHOLDER",
+      "official_url": "https://wise.com/au/",
+      "last_verified": "2026-05-29",
+      "verified_source": "wise.com/au pricing page"
+    },
+    {
+      "id": "remitly",
+      "name": "Remitly",
+      "tagline": "Fast cash pickup and bank deposit",
+      "transfer_methods": ["bank_deposit", "cash_pickup", "mobile_money"],
+      "method_labels": "Bank · Cash pickup · Mobile wallet",
+      "fee_aud": 3.99,
+      "fee_percent": 0,
+      "rate_markup_percent": 1.5,
+      "typical_speed": "Minutes (Express) to 3-5 days (Economy)",
+      "speed_tier": "very-fast",
+      "supports_amount": ["small", "medium", "large"],
+      "supported_countries": ["IN", "NP", "PH", "VN", "BD", "PK", "LK", "CN", "ID", "TH", "MY"],
+      "best_for": ["speed", "cash-pickup"],
+      "pros": [
+        "Express transfers arrive in minutes",
+        "Cash pickup at thousands of agent locations",
+        "First transfer usually has zero fees and a promo rate"
+      ],
+      "cons": [
+        "Exchange rate includes a markup over mid-market",
+        "Cheaper Economy option is slower (3–5 days)"
+      ],
+      "affiliate_url": "PLACEHOLDER",
+      "official_url": "https://www.remitly.com/au/en",
+      "last_verified": "2026-05-29",
+      "verified_source": "remitly.com/au pricing page"
+    },
+    {
+      "id": "ofx",
+      "name": "OFX",
+      "tagline": "Zero fee on large transfers, dedicated dealer",
+      "transfer_methods": ["bank_deposit"],
+      "method_labels": "Bank deposit",
+      "fee_aud": 0,
+      "fee_percent": 0,
+      "rate_markup_percent": 0.5,
+      "typical_speed": "1–2 business days",
+      "speed_tier": "moderate",
+      "supports_amount": ["medium", "large"],
+      "supported_countries": ["IN", "NP", "PH", "VN", "BD", "PK", "LK", "CN", "ID", "TH", "MY", "GB", "US"],
+      "best_for": ["large-transfer", "lowest-cost"],
+      "pros": [
+        "Zero transfer fee on amounts over $250 AUD",
+        "Dedicated account manager for amounts over $20,000",
+        "Strong AUD rates for medium and large transfers"
+      ],
+      "cons": [
+        "Bank deposit only — no cash pickup",
+        "Minimum transfer of $250 AUD",
+        "Slower than instant providers"
+      ],
+      "affiliate_url": "PLACEHOLDER",
+      "official_url": "https://www.ofx.com/en-au/",
+      "last_verified": "2026-05-29",
+      "verified_source": "ofx.com/en-au pricing page"
+    },
+    {
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "tagline": "Cash pickup, mobile money, broad country reach",
+      "transfer_methods": ["bank_deposit", "cash_pickup", "mobile_money"],
+      "method_labels": "Bank · Cash pickup · Mobile wallet",
+      "fee_aud": 2.99,
+      "fee_percent": 0,
+      "rate_markup_percent": 1.8,
+      "typical_speed": "Minutes to 1 business day",
+      "speed_tier": "fast",
+      "supports_amount": ["small", "medium", "large"],
+      "supported_countries": ["IN", "NP", "PH", "VN", "BD", "PK", "LK", "CN", "ID", "TH", "MY", "ZA", "KE", "NG", "GH"],
+      "best_for": ["cash-pickup", "speed"],
+      "pros": [
+        "Cash pickup across a 130+ country agent network",
+        "Mobile wallet transfers (great for parts of Asia & Africa)",
+        "First three transfers usually fee-free"
+      ],
+      "cons": [
+        "Higher exchange rate markup than Wise",
+        "Less competitive for large transfers"
+      ],
+      "affiliate_url": "PLACEHOLDER",
+      "official_url": "https://www.worldremit.com/en-au",
+      "last_verified": "2026-05-29",
+      "verified_source": "worldremit.com/en-au pricing page"
+    },
+    {
+      "id": "western-union",
+      "name": "Western Union",
+      "tagline": "Largest cash pickup network worldwide",
+      "transfer_methods": ["bank_deposit", "cash_pickup"],
+      "method_labels": "Bank · Cash pickup",
+      "fee_aud": 4.90,
+      "fee_percent": 0,
+      "rate_markup_percent": 2.5,
+      "typical_speed": "Minutes (cash) to 2–4 days (bank)",
+      "speed_tier": "very-fast",
+      "supports_amount": ["small", "medium", "large"],
+      "supported_countries": ["IN", "NP", "PH", "VN", "BD", "PK", "LK", "CN", "ID", "TH", "MY", "GB", "US"],
+      "best_for": ["cash-pickup", "speed"],
+      "pros": [
+        "The largest cash pickup network in the world",
+        "Cash arrives within minutes for in-person pickup",
+        "Easy for family to find — recognisable brand"
+      ],
+      "cons": [
+        "Highest exchange rate markup of these five",
+        "Fees stack up on smaller amounts",
+        "Better for urgency than for saving money"
+      ],
+      "affiliate_url": "PLACEHOLDER",
+      "official_url": "https://www.westernunion.com/au/en/home.html",
+      "last_verified": "2026-05-29",
+      "verified_source": "westernunion.com/au pricing page"
+    }
+  ]
+}

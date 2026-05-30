@@ -3,6 +3,10 @@
 //          amaysim.com.au, lycamobile.com.au.
 // Note: Lycamobile entries are based on search snippets — the site is JS-rendered and the
 // country lists / exact data quotas should be re-verified by clicking through before launch.
+//
+// affiliate_url: replace PLACEHOLDER with a Commission Factory / direct affiliate link once
+// approved. When real, the button auto-switches to rel="sponsored noopener". Until then, the
+// CTA falls back to official_url with rel="noopener" so every button stays functional.
 
 export default [
   {
@@ -168,7 +172,7 @@ export default [
       "Billed every 28 days",
     ],
     affiliate_url: "PLACEHOLDER",
-    official_url: "https://boost.com.au",
+    official_url: "https://boost.com.au/prepaid-plans",
     last_verified: "2026-05-15",
     verified_source: "Boost Mobile Critical Information Summary PDF May 2026",
   },
@@ -207,7 +211,7 @@ export default [
       "Billed every 28 days",
     ],
     affiliate_url: "PLACEHOLDER",
-    official_url: "https://boost.com.au",
+    official_url: "https://boost.com.au/prepaid-plans",
     last_verified: "2026-05-15",
     verified_source: "Boost Mobile Critical Information Summary PDF May 2026",
   },
