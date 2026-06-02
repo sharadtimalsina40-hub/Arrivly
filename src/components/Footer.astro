@@ -1,7 +1,71 @@
 ---
-// Site footer — three columns + full-width disclaimer
+// Site footer — newsletter strip + three columns + full-width disclaimer
 ---
-<footer class="px-6 sm:px-10 pt-16 pb-10 border-t border-black/5 mt-16">
+
+<!-- ── Email capture strip — above the main footer ── -->
+<section class="bg-[#f0f0ee] px-6 py-10 mt-16 border-t border-black/5">
+  <div class="max-w-2xl mx-auto text-center">
+    <div id="arrivly-footer-form-container">
+      <h3 class="font-serif text-2xl font-light tracking-tight text-ink mb-2 leading-tight">
+        Stay ahead of the best deals
+      </h3>
+      <p class="text-sm text-gray-600 leading-relaxed mb-5 max-w-xl mx-auto">
+        New SIM plans, money transfer rate drops, student bank offers — straight to your inbox.
+      </p>
+      <form id="arrivly-footer-form" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" novalidate>
+        <input
+          id="arrivly-footer-email"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-base bg-white focus:outline-none focus:border-ink transition-colors" />
+        <button
+          type="submit"
+          class="bg-ink text-paper px-6 py-3 rounded-lg font-medium hover:bg-accent hover:text-ink transition-colors">
+          Get updates
+        </button>
+      </form>
+    </div>
+
+    <div id="arrivly-footer-success"
+      class="hidden text-green-600 text-base font-medium py-6">
+      You're on the list!
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzZcrFrHRfha_xGF-8c6bbMP-VU74JzPV2xPGPWyYPaIE71vKj7ItU2vSuOqlp-cihZ/exec';
+    var form     = document.getElementById('arrivly-footer-form');
+    var formWrap = document.getElementById('arrivly-footer-form-container');
+    var success  = document.getElementById('arrivly-footer-success');
+    var emailEl  = document.getElementById('arrivly-footer-email');
+    if (!form || !formWrap || !success || !emailEl) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = (emailEl.value || '').trim();
+      if (!email || email.indexOf('@') === -1) {
+        emailEl.focus();
+        return;
+      }
+
+      fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ email: email, source: 'footer' })
+      }).catch(function () { /* opaque — treat any completion as success */ });
+
+      formWrap.classList.add('hidden');
+      success.classList.remove('hidden');
+    });
+  })();
+</script>
+
+<footer class="px-6 sm:px-10 pt-16 pb-10 border-t border-black/5">
   <div class="max-w-6xl mx-auto">
 
     <!-- ── Top row: logo + 3 columns ── -->
