@@ -9,10 +9,18 @@ const {
   ogTitle,
   ogDescription,
   ogImage = '/og-image.svg',
+  theme = 'light',
+  canonical,
 } = Astro.props;
 
 const finalOgTitle = ogTitle || title;
 const finalOgDescription = ogDescription || description;
+// Canonical: explicit prop wins; otherwise derive from the configured site + current path.
+const canonicalUrl = canonical || new URL(Astro.url.pathname, Astro.site).href;
+const dark = theme === 'dark';
+const bodyCls = dark
+  ? 'theme-dark bg-[#0a0a0a] text-white font-sans antialiased min-h-screen flex flex-col'
+  : 'bg-paper text-ink font-sans antialiased min-h-screen flex flex-col';
 ---
 <!doctype html>
 <html lang="en">
@@ -22,11 +30,13 @@ const finalOgDescription = ogDescription || description;
     <meta name="commission-factory-verification" content="03d28700e8194e67b6afcf8dcb41890a" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Arrivly" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={finalOgTitle} />
     <meta property="og:description" content={finalOgDescription} />
     <meta property="og:image" content={ogImage} />
@@ -42,34 +52,37 @@ const finalOgDescription = ogDescription || description;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+
+    <!-- Page-specific head extras: JSON-LD, extra meta -->
+    <slot name="head" />
   </head>
-  <body class="bg-paper text-ink font-sans antialiased min-h-screen flex flex-col">
-    <Nav />
+  <body class={bodyCls}>
+    <Nav theme={theme} />
     <main class="flex-1">
       <slot />
     </main>
-    <Footer />
+    <Footer theme={theme} />
 
     <!-- ── Email capture popup (timed, once per session) ── -->
     <div id="arrivly-popup"
-      class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center p-4"
+      class="theme-dark fixed inset-0 z-50 bg-black/70 hidden items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="arrivly-popup-heading">
-      <div class="relative bg-white rounded-2xl max-w-md w-full p-8 shadow-xl">
+      <div class="glass relative rounded-2xl max-w-md w-full p-8 bg-[#141416]/90">
         <button id="arrivly-popup-close"
           type="button"
           aria-label="Close"
-          class="absolute top-3 right-4 text-gray-400 hover:text-black transition-colors text-2xl leading-none">
+          class="absolute top-3 right-4 text-white/40 hover:text-white transition-colors text-2xl leading-none">
           ×
         </button>
 
         <div id="arrivly-popup-form-container">
           <h3 id="arrivly-popup-heading"
-            class="font-serif text-2xl font-light tracking-tight text-ink mb-2 leading-tight">
+            class="font-serif text-2xl font-light tracking-tight text-white mb-2 leading-tight">
             Get better deals in your inbox
           </h3>
-          <p class="text-sm text-muted leading-relaxed mb-6">
+          <p class="text-sm text-white/60 leading-relaxed mb-6">
             We'll email you when providers drop prices or launch student offers. No spam, unsubscribe anytime.
           </p>
           <form id="arrivly-popup-form" class="space-y-3" novalidate>
@@ -79,17 +92,17 @@ const finalOgDescription = ogDescription || description;
               required
               autocomplete="email"
               placeholder="you@example.com"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-ink transition-colors" />
+              class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-base text-white placeholder:text-white/40 focus:outline-none focus:border-accent transition-colors" />
             <button
               type="submit"
-              class="w-full bg-ink text-paper font-medium py-3 rounded-lg hover:bg-accent hover:text-ink transition-colors">
+              class="w-full bg-accent text-ink font-medium py-3 rounded-lg hover:scale-[1.01] shadow-[0_0_24px_rgba(200,240,100,0.25)] transition-transform">
               Notify me
             </button>
           </form>
         </div>
 
         <div id="arrivly-popup-success"
-          class="hidden text-green-600 text-base font-medium text-center py-8">
+          class="hidden text-green-500 text-base font-medium text-center py-8">
           You're in! We'll be in touch.
         </div>
       </div>

@@ -1,123 +1,188 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import simPlans from '../data/sim-plans.js';
+import moneyData from '../data/money-transfer.json';
+
+// Real numbers, pulled from the data files at build time
+const simCount = simPlans.length;
+const transferCount = moneyData.providers.length;
+const oshcCount = 6; // provider cards on /health-insurance
 ---
 
 <BaseLayout
+  theme="dark"
   title="Arrivly — Everything you need when you arrive in Australia"
   description="Compare SIM cards, health insurance, bank accounts and money transfer — built for international students in Australia. No ads, no bias."
   ogTitle="Arrivly — Everything international students need in Australia"
-  ogDescription="The first weeks in Australia are overwhelming. We make the easy stuff easy.">
+  ogDescription="Your first weeks in Australia, sorted. Compare SIM cards, health insurance, money transfers and savings in one place.">
 
   <!-- ── Hero ── -->
-  <section class="px-6 sm:px-10 pt-12 pb-16 sm:pt-24 sm:pb-32">
-    <div class="max-w-6xl mx-auto">
-      <h1 class="font-serif text-5xl sm:text-7xl font-light tracking-tight text-ink leading-[1.04] max-w-4xl">
-        The first weeks in Australia <br class="hidden sm:block" />
-        are overwhelming. <br />
-        We make the easy stuff
-        <span class="relative inline-block">
-          easy.
-          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
-        </span>
-      </h1>
+  <section class="hero-glow grain relative overflow-hidden -mt-[68px] pt-[68px]">
+    <div class="min-h-[92svh] flex flex-col px-6 sm:px-10">
 
-      <div class="text-lg sm:text-xl text-muted mt-10 max-w-2xl leading-relaxed space-y-5">
-        <p>When we arrived, we spent weeks on the wrong SIM card, paid too much for health insurance, and didn't know which bank account actually worked for sending money home.</p>
-        <p>We built Arrivly so you don't have to figure it out the hard way.</p>
-      </div>
+      <div class="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto pt-16 pb-10">
+        <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-white/50 mb-6">
+          For visa holders &amp; international students in Australia
+        </p>
 
-      <div class="mt-12 flex flex-wrap gap-3">
+        <h1 class="font-serif text-5xl sm:text-6xl md:text-8xl font-light tracking-tight text-white leading-[1.02] mb-8">
+          Your first weeks in Australia, sorted.
+        </h1>
+
+        <p class="text-base sm:text-lg text-white/70 leading-relaxed max-w-xl mb-10">
+          Compare SIM cards, health insurance, money transfers and savings — checked by hand, ranked honestly.
+          I overpaid <span class="text-accent font-medium">$960</span> on my first phone plan so you don't have to.
+        </p>
+
+        <!-- Glass email capture bar -->
+        <div class="w-full max-w-md mb-4">
+          <form id="arrivly-hero-form" class="glass rounded-full flex items-center gap-2 pl-5 pr-1.5 py-1.5" novalidate>
+            <input
+              id="arrivly-hero-email"
+              type="email"
+              required
+              autocomplete="email"
+              placeholder="Email me the best deals as they drop"
+              class="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none py-2.5 min-w-0" />
+            <button
+              type="submit"
+              aria-label="Subscribe"
+              class="shrink-0 w-10 h-10 rounded-full bg-accent text-ink flex items-center justify-center hover:scale-105 shadow-[0_0_20px_rgba(200,240,100,0.3)] transition-transform">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </form>
+          <p id="arrivly-hero-success" class="hidden text-green-500 text-sm font-medium py-3">
+            You're in! We'll be in touch.
+          </p>
+        </div>
+
         <a href="/sim-cards"
-          class="inline-flex items-center gap-2 bg-ink text-paper px-7 py-4 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
+          class="glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white hover:text-accent transition-colors">
           Compare SIM cards <span aria-hidden="true">→</span>
         </a>
-        <a href="#tools"
-          class="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-medium text-ink border border-black/10 hover:bg-warm transition-colors">
-          See all tools
-        </a>
       </div>
+
+      <!-- Stat strip at hero bottom edge -->
+      <div class="pb-8">
+        <div class="glass rounded-2xl sm:rounded-full max-w-4xl mx-auto px-6 py-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[13px] text-white/60">
+          <span><span class="text-accent font-semibold">{simCount}</span> SIM plans verified</span>
+          <span class="hidden sm:inline text-white/20">·</span>
+          <span><span class="text-accent font-semibold">{oshcCount}</span> OSHC providers</span>
+          <span class="hidden sm:inline text-white/20">·</span>
+          <span><span class="text-accent font-semibold">$40+</span> saved per transfer</span>
+          <span class="hidden sm:inline text-white/20">·</span>
+          <span>Data checked <span class="text-white/80">May 2026</span></span>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- ── Tools grid ── -->
-  <section id="tools" class="px-6 sm:px-10 pb-16 sm:pb-32">
+  <!-- ── Start here — tools grid ── -->
+  <section id="tools" class="px-6 sm:px-10 py-20 sm:py-28">
     <div class="max-w-6xl mx-auto">
-      <p class="text-xs font-bold uppercase tracking-[0.18em] text-muted mb-4">What we've figured out for you</p>
-      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-ink mb-12 max-w-2xl leading-[1.1]">
-        Start here. These four things matter most in your first week.
+      <p class="font-mono text-[11px] tracking-[0.22em] uppercase text-white/40 mb-4">Start here</p>
+      <h2 class="font-serif text-3xl sm:text-5xl font-light tracking-tight text-white mb-12 max-w-2xl leading-[1.1]">
+        These four things matter most in your first week.
       </h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
         <a href="/sim-cards"
-          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
+          class="glass group rounded-3xl p-8 sm:p-10 hover:-translate-y-1 transition-transform duration-200">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl">📱</span>
+            <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#c8f064" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+                <rect x="9" y="12" width="6" height="6" rx="1"/>
+                <path d="M12 12v6M9 15h6"/>
+              </svg>
+            </div>
             <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
               Available now
             </span>
           </div>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-2">
             SIM cards
           </h3>
-          <p class="text-sm text-muted mb-6 leading-relaxed">
+          <p class="text-sm text-white/60 mb-6 leading-relaxed">
             Most students get this wrong. We tested every major plan — including which ones actually include Nepal, India, and Philippines calls.
           </p>
-          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-accent group-hover:gap-3 transition-all">
             Compare plans <span aria-hidden="true">→</span>
           </span>
         </a>
 
         <a href="/health-insurance"
-          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
+          class="glass group rounded-3xl p-8 sm:p-10 hover:-translate-y-1 transition-transform duration-200">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl">🏥</span>
+            <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#c8f064" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/>
+                <path d="M12 9v6M9 12h6"/>
+              </svg>
+            </div>
             <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
               Available now
             </span>
           </div>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-2">
             Health insurance
           </h3>
-          <p class="text-sm text-muted mb-6 leading-relaxed">
+          <p class="text-sm text-white/60 mb-6 leading-relaxed">
             Your visa requires it. But most students pay more than they need to. We'll show you the difference.
           </p>
-          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-accent group-hover:gap-3 transition-all">
             Compare providers <span aria-hidden="true">→</span>
           </span>
         </a>
 
-        <div class="bg-warm rounded-3xl p-8 sm:p-10 border border-black/5">
+        <div class="glass rounded-3xl p-8 sm:p-10 opacity-70">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl opacity-60">🏦</span>
-            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-black/10 text-muted">
+            <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#c8f064" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <path d="M2 10h20"/>
+                <path d="M6 15h4"/>
+              </svg>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full border border-white/15 text-white/50">
               Coming soon
             </span>
           </div>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-2">
             Banking &amp; Credit
           </h3>
-          <p class="text-sm text-muted mb-6 leading-relaxed">
+          <p class="text-sm text-white/60 mb-6 leading-relaxed">
             Open your first Australian bank account, then build your credit history when you're ready. We cover every stage — from first account to first credit card.
           </p>
-          <span class="text-sm text-faint">In development</span>
+          <span class="text-sm text-white/40">In development</span>
         </div>
 
         <a href="/money-transfer"
-          class="group bg-warm rounded-3xl p-8 sm:p-10 border border-black/5 hover:border-black/20 transition-all">
+          class="glass group rounded-3xl p-8 sm:p-10 hover:-translate-y-1 transition-transform duration-200">
           <div class="flex items-start justify-between mb-12 sm:mb-16">
-            <span class="text-4xl">💸</span>
+            <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/[0.12] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#c8f064" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 4l3 3-3 3"/>
+                <path d="M20 7H8a4 4 0 0 0-4 4"/>
+                <path d="M7 20l-3-3 3-3"/>
+                <path d="M4 17h12a4 4 0 0 0 4-4"/>
+              </svg>
+            </div>
             <span class="text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-1 rounded-full bg-accent text-ink">
               Available now
             </span>
           </div>
-          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-2">
+          <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-2">
             Money transfer
           </h3>
-          <p class="text-sm text-muted mb-6 leading-relaxed">
-            Sending $500 home can cost $5 or $25 depending on who you use. We show you exactly who charges what.
+          <p class="text-sm text-white/60 mb-6 leading-relaxed">
+            Sending $500 home can cost <span class="text-accent">$5</span> or <span class="text-white">$25</span> depending on who you use. We show you exactly who charges what.
           </p>
-          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink group-hover:gap-3 transition-all">
+          <span class="inline-flex items-center gap-1.5 text-sm font-medium text-accent group-hover:gap-3 transition-all">
             Compare services <span aria-hidden="true">→</span>
           </span>
         </a>
@@ -126,30 +191,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- ── Trust strip ── -->
-  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-black/5">
+  <!-- ── Trust section ── -->
+  <section class="px-6 sm:px-10 py-16 sm:py-24 border-t border-white/10">
     <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
       <div>
-        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
-          Free to use.<br />Always.
+        <p class="font-serif text-2xl sm:text-3xl font-light text-white mb-3 tracking-tight leading-[1.15]">
+          We're paid by providers,<br />not by bias.
         </p>
-        <p class="text-sm text-muted leading-relaxed">
-          Arrivly is free for students. No paywalls, no sign-ups, no catch. Use it as often as you need — from the week you arrive to the year you graduate.
+        <p class="text-sm text-white/60 leading-relaxed">
+          We earn a commission when you sign up through our links. But every ranking is based on what fits your situation — not what pays us most. Some plans we recommend earn us nothing.
         </p>
       </div>
       <div>
-        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
+        <p class="font-serif text-2xl sm:text-3xl font-light text-white mb-3 tracking-tight leading-[1.15]">
           We check. Then we<br />show our work.
         </p>
-        <p class="text-sm text-muted leading-relaxed">
+        <p class="text-sm text-white/60 leading-relaxed">
           Every plan shows the date we last verified it and where we got the data. If something is uncertain, we say so. No bluffing.
         </p>
       </div>
       <div>
-        <p class="font-serif text-2xl sm:text-3xl font-light text-ink mb-3 tracking-tight leading-[1.15]">
+        <p class="font-serif text-2xl sm:text-3xl font-light text-white mb-3 tracking-tight leading-[1.15]">
           Made by someone who<br />went through it too.
         </p>
-        <p class="text-sm text-muted leading-relaxed">
+        <p class="text-sm text-white/60 leading-relaxed">
           We navigated the Australian student and visa system ourselves. This is the resource we needed and couldn't find.
         </p>
       </div>
@@ -157,3 +222,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzZcrFrHRfha_xGF-8c6bbMP-VU74JzPV2xPGPWyYPaIE71vKj7ItU2vSuOqlp-cihZ/exec';
+    var form    = document.getElementById('arrivly-hero-form');
+    var success = document.getElementById('arrivly-hero-success');
+    var emailEl = document.getElementById('arrivly-hero-email');
+    if (!form || !success || !emailEl) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = (emailEl.value || '').trim();
+      if (!email || email.indexOf('@') === -1) {
+        emailEl.focus();
+        return;
+      }
+
+      fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ email: email, source: 'hero' })
+      }).catch(function () { /* opaque response — treat completion as success */ });
+
+      form.classList.add('hidden');
+      success.classList.remove('hidden');
+    });
+  })();
+</script>

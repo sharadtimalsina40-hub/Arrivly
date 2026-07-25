@@ -1,0 +1,35 @@
+---
+// Author / review block. The repo currently has NO named human author, so this
+// credits the Arrivly editorial team (real) rather than rendering an invented
+// person. TODO(editorial): supply a real author name + bio, then extend this
+// component and add Person JSON-LD on the consuming page.
+// props: publishedDate, reviewedDate, verifiedDate, methodologyHref
+const { publishedDate, reviewedDate, verifiedDate, methodologyHref = '#methodology' } = Astro.props;
+---
+<div class="glass rounded-2xl p-6 sm:p-7">
+  <div class="flex items-start gap-4">
+    <span class="w-11 h-11 rounded-full bg-accent flex items-center justify-center shrink-0" aria-hidden="true">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L12 14M12 14L8 10M12 14L16 10M4 18H20" />
+      </svg>
+    </span>
+    <div>
+      <p class="text-sm font-medium text-white">Written by the Arrivly editorial team</p>
+      <p class="text-xs text-white/50 leading-relaxed mt-1 max-w-xl">
+        Arrivly is built by people who went through the Australian international-student and
+        skilled-migration journey themselves. Every plan on this page was checked manually
+        against the provider's own website or published documents.
+      </p>
+      <dl class="flex flex-wrap gap-x-5 gap-y-1 mt-3 text-xs text-white/40">
+        <div class="flex gap-1.5"><dt>Published:</dt><dd>{publishedDate}</dd></div>
+        <div class="flex gap-1.5"><dt>Last reviewed:</dt><dd>{reviewedDate}</dd></div>
+        <div class="flex gap-1.5"><dt>Data verified:</dt><dd>{verifiedDate}</dd></div>
+      </dl>
+      <p class="text-xs mt-3">
+        <a href={methodologyHref} class="text-white/60 underline decoration-accent decoration-2 underline-offset-2 hover:text-white transition-colors">How we compared these plans</a>
+        <span class="text-white/30 mx-2">·</span>
+        <a href="/affiliate-disclosure" class="text-white/60 underline decoration-accent decoration-2 underline-offset-2 hover:text-white transition-colors">How Arrivly makes money</a>
+      </p>
+    </div>
+  </div>
+</div>

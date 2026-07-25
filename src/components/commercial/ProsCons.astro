@@ -1,0 +1,34 @@
+---
+// Balanced pros & cons for one option. Limitations render at equal visual
+// weight to the benefits — that's deliberate.
+// props: title, subtitle?, pros: string[], cons: string[]
+const { title, subtitle, pros = [], cons = [] } = Astro.props;
+---
+<article class="glass rounded-2xl p-6 sm:p-7">
+  <h3 class="font-serif text-xl font-light tracking-tight text-white leading-snug mb-0.5">{title}</h3>
+  {subtitle && <p class="text-xs text-white/40 mb-5">{subtitle}</p>}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+    <div>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-3">Strengths</p>
+      <ul class="space-y-2.5">
+        {pros.map((p) => (
+          <li class="flex items-start gap-2.5 text-sm text-white/70 leading-relaxed">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="#c8f064" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            {p}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-3">Limitations</p>
+      <ul class="space-y-2.5">
+        {cons.map((c) => (
+          <li class="flex items-start gap-2.5 text-sm text-white/70 leading-relaxed">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+            {c}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</article>

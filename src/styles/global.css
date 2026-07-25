@@ -13,6 +13,47 @@
   --color-faint: #999999;
 }
 
+/* ══════════════════════════════════════════════════════════
+   Dark Premium Glass — design system for the 2026 redesign.
+   Light-theme tokens above stay until every page is migrated.
+   ══════════════════════════════════════════════════════════ */
+
+/* Glass surface — nav pill, wizard cards, result rows, email capture, popup */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle film-grain overlay — apply to a positioned section */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero glow — distant city light, not a disco */
+.hero-glow {
+  background:
+    radial-gradient(ellipse 75% 55% at 18% -5%, rgba(200, 240, 100, 0.055), transparent 62%),
+    radial-gradient(ellipse 65% 50% at 85% 105%, rgba(16, 54, 54, 0.5), transparent 70%),
+    linear-gradient(180deg, #0a0a0a 0%, #111113 100%);
+}
+
+/* Visible lime focus rings on dark surfaces */
+.theme-dark :focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Long-form text styles for legal & info pages */
 .prose {
   color: var(--color-muted);

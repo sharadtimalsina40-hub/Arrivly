@@ -1,0 +1,19 @@
+---
+// Crawlable breadcrumbs — plain anchors, no JS.
+// props: items = [{ label: string, href?: string }] — last item is the current page.
+const { items = [] } = Astro.props;
+---
+<nav aria-label="Breadcrumb" class="text-sm">
+  <ol class="flex flex-wrap items-center gap-2 text-white/40">
+    {items.map((item, i) => (
+      <li class="flex items-center gap-2">
+        {i > 0 && <span aria-hidden="true">/</span>}
+        {item.href ? (
+          <a href={item.href} class="hover:text-white transition-colors">{item.label}</a>
+        ) : (
+          <span aria-current="page" class="text-white/70">{item.label}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

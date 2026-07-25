@@ -1,0 +1,18 @@
+---
+// Bottom conversion section. No false urgency, no countdowns, no savings
+// guarantees — heading + one honest line + the lime CTA.
+// props: heading, body, ctaText, ctaHref
+const { heading, body, ctaText, ctaHref } = Astro.props;
+---
+<section class="glass rounded-3xl px-6 py-12 sm:px-12 sm:py-16 text-center relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+    style="background: radial-gradient(ellipse 60% 70% at 50% 110%, rgba(200,240,100,0.08), transparent 65%);"></div>
+  <div class="relative">
+    <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-4 max-w-2xl mx-auto">{heading}</h2>
+    <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto mb-8">{body}</p>
+    <a href={ctaHref}
+      class="inline-flex items-center gap-2 bg-accent text-ink px-8 py-4 rounded-full text-sm font-medium hover:scale-[1.03] shadow-[0_0_32px_rgba(200,240,100,0.3)] transition-transform">
+      {ctaText} <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>

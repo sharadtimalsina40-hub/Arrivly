@@ -1,387 +1,510 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/commercial/Breadcrumbs.astro';
+import ProsCons from '../components/commercial/ProsCons.astro';
+import SourceList from '../components/commercial/SourceList.astro';
+import AuthorReview from '../components/commercial/AuthorReview.astro';
+import CommercialCTA from '../components/commercial/CommercialCTA.astro';
+import ImportantWarnings from '../components/commercial/ImportantWarnings.astro';
+
 import data from '../data/money-transfer.json';
+import { rankByCost, latestVerified, round2, upfrontFee, totalCostAud } from '../data/money-transfer-stats.js';
+import { verdicts, suitability, scenarios, sources, warnings } from '../data/commercial/money-transfer-page.js';
 
 const providers = data.providers;
 const serialisedProviders = JSON.stringify(providers);
+
+const providerById = (id) => {
+  const p = providers.find((x) => x.id === id);
+  if (!p) throw new Error(`money-transfer page references unknown provider id: ${id}`);
+  return p;
+};
+const resolvedVerdicts = verdicts.map((v) => ({ ...v, provider: providerById(v.providerId) }));
+const resolvedSuitability = suitability.map((s) => ({ ...s, provider: providerById(s.providerId) }));
+const verdictIds = new Set(verdicts.map((v) => v.providerId));
+
+const feeLabel = (p) =>
+  p.fee_aud === 0 && p.fee_percent === 0 ? 'Free' : `$${p.fee_aud.toFixed(2)}${p.fee_percent ? ' + ' + p.fee_percent + '%' : ''}`;
+const markupLabel = (p) => (p.rate_markup_percent === 0 ? 'Mid-market' : `+${p.rate_markup_percent}%`);
+const shortSpeed = (s) => s.split('(')[0].split(' to ')[0].trim();
+const ctaUrl = (p) => (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER' ? p.affiliate_url : p.official_url);
+const ctaRel = (p) => (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER' ? 'sponsored noopener noreferrer' : 'noopener');
+const bestForLabel = (t) => ({ 'lowest-cost': 'Lowest cost', 'large-transfer': 'Large transfers', speed: 'Speed', 'cash-pickup': 'Cash pickup' })[t] || t;
+
+// Insight: true all-in cost of a $500 transfer, cheapest vs dearest (computed).
+const cost500 = rankByCost(500, 'medium');
+const cheapest500 = cost500[0];
+const dearest500 = cost500.at(-1);
+
+// Table sorted: verdict picks first, then by markup then fee.
+const verdictOrder = verdicts.map((v) => v.providerId);
+const tableProviders = [...providers].sort((a, b) => {
+  const ai = verdictOrder.indexOf(a.id), bi = verdictOrder.indexOf(b.id);
+  if (ai !== -1 && bi !== -1) return ai - bi;
+  if (ai !== -1) return -1;
+  if (bi !== -1) return 1;
+  return a.rate_markup_percent - b.rate_markup_percent;
+});
+
+// ── SEO ──
+const pageTitle = 'Compare Money Transfer Services from Australia | Arrivly';
+const pageDescription =
+  'Compare transfer fees, exchange-rate margins, delivery speed and the true all-in cost of sending money from Australia overseas — Wise, Remitly, OFX, WorldRemit and Western Union.';
+const canonical = 'https://arrivly.com.au/money-transfer';
+
+const jsonLd = [
+  { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Compare Money Transfer Services from Australia', description: pageDescription, url: canonical, dateModified: latestVerified, publisher: { '@type': 'Organization', name: 'Arrivly', url: 'https://arrivly.com.au' } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://arrivly.com.au/' },
+    { '@type': 'ListItem', position: 2, name: 'Money transfer', item: canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Recommended money transfer services from Australia', itemListElement: resolvedVerdicts.map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: `${v.category}: ${v.provider.name}`, url: v.provider.official_url })) },
+];
 ---
 
-<BaseLayout
-  title="Money Transfer Comparison — Arrivly"
-  description="Send money home from Australia in 3 questions. 5 verified services ranked by what actually saves you the most.">
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} theme="dark">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
 
-  <div class="flex flex-col items-center px-4 pt-4 pb-16 sm:pt-8 sm:pb-24">
+  <div class="relative hero-glow grain">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-16 sm:pb-24 relative">
 
-    <!-- Page intro -->
-    <div class="w-full max-w-5xl mb-8 sm:mb-10">
-      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Money transfer</p>
-      <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-ink leading-[1.1] mb-4">
-        Send money home in <span class="relative inline-block">
-          three questions.
-          <span class="absolute -bottom-1 left-0 right-0 h-3 bg-accent -z-10 rounded"></span>
-        </span>
-      </h1>
-      <p class="text-base text-muted leading-relaxed max-w-xl">
-        Tell us where, how much, and what matters most. We'll rank 5 verified services by what actually saves you the most.
-      </p>
-    </div>
+      <!-- 1. Breadcrumbs -->
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Money transfer' }]} />
 
-    <!-- ── Wizard card ── -->
-    <div id="wizard" class="w-full max-w-5xl bg-white rounded-3xl border border-black/5 overflow-hidden">
+      <!-- 2. Hero -->
+      <header class="mt-10 sm:mt-16 mb-14 sm:mb-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50 mb-5">Sending money home from Australia</p>
+        <h1 class="font-serif text-4xl sm:text-6xl font-light tracking-tight text-white leading-[1.05] max-w-3xl mb-6">
+          Compare money transfer services from Australia
+        </h1>
+        <p class="text-base sm:text-lg text-white/70 leading-relaxed max-w-2xl mb-8">
+          Compare transfer fees, exchange-rate margins and delivery speed — and see the number that
+          actually matters: the <span class="text-accent">true all-in cost</span> of your transfer.
+          A "$0 fee" service can quietly cost more than one that charges a fee.
+        </p>
+        <div class="flex flex-wrap items-center gap-3 mb-8">
+          <a href="#finder" class="inline-flex items-center gap-2 bg-accent text-ink px-7 py-3.5 rounded-full text-sm font-medium hover:scale-[1.03] shadow-[0_0_28px_rgba(200,240,100,0.28)] transition-transform">Compare transfer services <span aria-hidden="true">→</span></a>
+          <a href="#top-picks" class="glass inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-medium text-white hover:border-white/30 transition-colors">See top choices</a>
+        </div>
+        <div class="glass rounded-2xl px-5 py-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-white/60">
+          <span><strong class="text-accent font-semibold">{providers.length}</strong> services compared</span>
+          <span>Model checked <strong class="text-white/80">{latestVerified}</strong></span>
+          <a href="#methodology" class="underline decoration-accent decoration-2 underline-offset-2 hover:text-white transition-colors">How we compare</a>
+          <a href="/affiliate-disclosure" class="underline decoration-accent decoration-2 underline-offset-2 hover:text-white transition-colors">Some links earn us a commission</a>
+        </div>
+        <p class="mt-4 text-xs text-white/40 max-w-2xl leading-relaxed">
+          ⓘ Figures on this page are an <strong class="text-white/60">illustrative cost model</strong>, not live quotes.
+          Exchange rates move constantly — always confirm the final recipient amount in the provider's app before sending.
+        </p>
+      </header>
 
-      <!-- Segmented progress -->
-      <div class="flex gap-1.5 px-8 pt-6">
-        <div class="progress-seg h-1 flex-1 rounded-full bg-ink transition-colors duration-300"></div>
-        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
-        <div class="progress-seg h-1 flex-1 rounded-full bg-black/10 transition-colors duration-300"></div>
-      </div>
+      <!-- 3. Arrivly Verdict -->
+      <section id="top-picks" class="mb-16 sm:mb-24 scroll-mt-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">The short answer</h2>
+        <p class="text-sm text-white/50 mb-8 max-w-2xl">Different priorities produce different winners — there is no single best provider for everyone.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {resolvedVerdicts.map((v) => (
+            <article class="glass rounded-2xl p-6 flex flex-col">
+              <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-accent mb-3">{v.category}</p>
+              <div class="flex items-start justify-between gap-3 mb-1">
+                <h3 class="font-serif text-xl font-light tracking-tight text-white leading-snug">{v.provider.name}</h3>
+                <p class="text-right shrink-0"><span class="text-sm font-bold text-white">{feeLabel(v.provider)}</span><span class="text-xs text-white/40 block">fee · {markupLabel(v.provider)} rate</span></p>
+              </div>
+              <p class="text-xs text-white/40 mb-3">{v.provider.method_labels}</p>
+              <p class="text-sm text-white/60 leading-relaxed flex-1">{v.reason}</p>
+              <p class="text-sm text-white/50 leading-relaxed mt-3"><span class="text-white/70 font-medium">Watch out:</span> {v.limitation}</p>
+              <p class="text-xs text-white/30 mt-4 mb-4">Model checked {v.provider.last_verified}</p>
+              <a href={ctaUrl(v.provider)} target="_blank" rel={ctaRel(v.provider)} class="inline-flex items-center justify-center gap-1.5 border border-white/15 text-white text-sm font-medium py-2.5 rounded-full hover:border-accent hover:text-accent transition-colors">Visit {v.provider.name} <span aria-hidden="true">↗</span></a>
+            </article>
+          ))}
+        </div>
+      </section>
 
-      <!-- Header row -->
-      <div class="flex items-center justify-between px-8 pt-6 pb-0">
-        <span id="step-label" class="text-sm text-muted">Question 1 of 3</span>
-        <button id="restart-btn" class="hidden text-sm text-faint hover:text-ink transition-colors">
-          Start over
-        </button>
-      </div>
+      <!-- 4. Comparison table -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">All {providers.length} services at a glance</h2>
+        <p class="text-sm text-white/50 mb-6 max-w-2xl">"True cost on $500" combines the upfront fee and the exchange-rate margin into one AUD figure — the honest way to rank, since the lowest fee is not always the lowest cost.</p>
+        <div class="glass rounded-2xl overflow-x-auto">
+          <table class="w-full min-w-[820px] text-sm text-left">
+            <thead>
+              <tr class="border-b border-white/10 text-[11px] uppercase tracking-[0.14em] text-white/40">
+                <th scope="col" class="px-5 py-4 font-bold">Provider</th>
+                <th scope="col" class="px-4 py-4 font-bold">Transfer fee</th>
+                <th scope="col" class="px-4 py-4 font-bold">Rate vs mid-market</th>
+                <th scope="col" class="px-4 py-4 font-bold tabular-nums">True cost on $500</th>
+                <th scope="col" class="px-4 py-4 font-bold">Typical speed</th>
+                <th scope="col" class="px-4 py-4 font-bold">Delivery</th>
+                <th scope="col" class="px-4 py-4 font-bold">Best for</th>
+                <th scope="col" class="px-4 py-4 font-bold"><span class="sr-only">Link</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/[0.06]">
+              {tableProviders.map((p) => (
+                <tr class={verdictIds.has(p.id) ? 'bg-accent/[0.04]' : ''}>
+                  <th scope="row" class="px-5 py-4 font-medium text-white whitespace-nowrap">
+                    {verdictIds.has(p.id) && <span class="inline-block w-1.5 h-1.5 rounded-full bg-accent mr-2 align-middle" title="Arrivly pick"></span>}
+                    {p.name}
+                    <span class="block text-[11px] font-normal text-white/40 mt-0.5">{p.tagline}</span>
+                  </th>
+                  <td class="px-4 py-4 text-white/80 whitespace-nowrap">{feeLabel(p)}</td>
+                  <td class="px-4 py-4 whitespace-nowrap"><span class={p.rate_markup_percent === 0 ? 'text-accent' : 'text-white/60'}>{markupLabel(p)}</span></td>
+                  <td class="px-4 py-4 font-semibold text-accent tabular-nums whitespace-nowrap">${round2(totalCostAud(p, 500)).toFixed(2)}</td>
+                  <td class="px-4 py-4 text-white/60 whitespace-nowrap">{shortSpeed(p.typical_speed)}</td>
+                  <td class="px-4 py-4 text-white/60">{p.method_labels}</td>
+                  <td class="px-4 py-4 text-white/60 whitespace-nowrap">{p.best_for.map(bestForLabel).join(', ')}</td>
+                  <td class="px-4 py-4"><a href={ctaUrl(p)} target="_blank" rel={ctaRel(p)} class="inline-flex items-center gap-1 text-xs font-medium text-white border border-white/15 rounded-full px-3.5 py-1.5 hover:border-accent hover:text-accent transition-colors whitespace-nowrap">View <span aria-hidden="true">↗</span></a></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-white/30 mt-3">Rows with a <span class="inline-block w-1.5 h-1.5 rounded-full bg-accent align-middle mx-0.5"></span> dot are the picks above. "True cost on $500" = upfront fee + rate margin, from the illustrative model. Not a live quote.</p>
+      </section>
 
-      <div class="px-6 pt-8 pb-12 sm:px-12 sm:pt-10 sm:pb-14">
+      <!-- 5. Interactive tool -->
+      <section id="finder" class="mb-16 sm:mb-24 scroll-mt-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">Find the best way to send your money</h2>
+        <p class="text-sm text-white/50 mb-8 max-w-2xl">Three questions — where you're sending, how much, and what matters most (lowest cost, speed, or cash pickup). The tool filters to services that support your corridor and amount, then ranks them.</p>
 
-        <!-- ── Step 1 — country (typeahead search) ── -->
-        <div id="step-1">
-          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-8 leading-[1.15]">Where are you sending money?</h2>
+        <div id="wizard" class="glass rounded-3xl overflow-hidden">
+          <div class="flex gap-1.5 px-8 pt-6">
+            <div class="progress-seg h-1 flex-1 rounded-full bg-accent transition-colors duration-300"></div>
+            <div class="progress-seg h-1 flex-1 rounded-full bg-white/10 transition-colors duration-300"></div>
+            <div class="progress-seg h-1 flex-1 rounded-full bg-white/10 transition-colors duration-300"></div>
+          </div>
+          <div class="flex items-center justify-between px-8 pt-6 pb-0">
+            <span id="step-label" class="text-sm text-white/50">Question 1 of 3</span>
+            <button id="restart-btn" class="hidden text-sm text-white/40 hover:text-white transition-colors">Start over</button>
+          </div>
 
-          <div class="max-w-[500px] mx-auto">
-            <!-- Search input + dropdown -->
-            <div class="relative">
-              <input
-                id="q1-search"
-                type="text"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="Search your country e.g. Nepal, India..."
-                class="w-full px-5 py-4 border border-black/15 rounded-full bg-white text-ink placeholder:text-faint focus:outline-none focus:border-ink transition-colors text-base"
-              />
-              <div id="q1-dropdown"
-                class="hidden absolute left-0 right-0 mt-2 max-h-72 overflow-y-auto bg-white border border-black/10 rounded-2xl shadow-sm z-10">
-                <!-- populated by JS -->
+          <div class="px-6 pt-8 pb-12 sm:px-12 sm:pt-10 sm:pb-14">
+            <!-- Step 1 — country typeahead -->
+            <div id="step-1">
+              <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-8 leading-[1.15]">Where are you sending money?</h3>
+              <div class="max-w-md">
+                <div class="relative">
+                  <input id="q1-search" type="text" autocomplete="off" placeholder="Type a country — e.g. Nepal, India"
+                    class="w-full border border-white/15 rounded-xl px-4 py-3.5 text-base bg-white/[0.06] text-white placeholder:text-white/40 focus:outline-none focus:border-accent transition-colors" />
+                  <div id="q1-dropdown" class="hidden absolute z-20 mt-2 w-full max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-[#141416] shadow-xl"></div>
+                </div>
+                <div id="q1-selected" class="hidden mt-4 items-center gap-2">
+                  <span class="text-sm text-white/50">Sending to</span>
+                  <span class="inline-flex items-center gap-2 border border-accent bg-accent/10 rounded-full pl-3 pr-2 py-1 text-sm text-white">
+                    <span id="q1-chip-text" class="font-medium"></span>
+                    <button id="q1-chip-clear" type="button" class="text-white/50 hover:text-white leading-none text-lg" aria-label="Clear selection">×</button>
+                  </span>
+                </div>
+              </div>
+              <div class="mt-8 flex justify-end">
+                <button id="q1-continue" disabled class="px-8 py-3 rounded-full text-sm font-medium bg-accent text-ink transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:scale-[1.03]">Continue →</button>
               </div>
             </div>
 
-            <!-- Selected chip -->
-            <div id="q1-selected" class="hidden mt-4 flex items-center gap-2">
-              <span class="text-xs text-faint">Sending to:</span>
-              <span class="inline-flex items-center gap-2 bg-warm border border-ink rounded-full px-4 py-1.5 text-sm font-medium text-ink">
-                <span id="q1-chip-text"></span>
-                <button id="q1-chip-clear" type="button" class="text-faint hover:text-ink leading-none" aria-label="Clear selection">×</button>
-              </span>
-            </div>
-          </div>
-
-          <div class="mt-10 flex justify-end">
-            <button id="q1-continue" disabled
-              class="px-8 py-3 rounded-full text-sm font-medium bg-ink text-paper transition-all duration-150
-                     disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-ink/85">
-              Continue →
-            </button>
-          </div>
-        </div>
-
-        <!-- ── Step 2 — amount (single-select, auto-advance) ── -->
-        <div id="step-2" class="hidden">
-          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-10 leading-[1.15]">How much are you sending?</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-step="2" data-key="amount" data-value="small">
-              <span class="text-2xl mb-4 block">🪙</span>
-              <p class="font-semibold text-lg text-ink mb-1">Under $200</p>
-              <p class="text-sm text-muted">Small top-ups</p>
-            </button>
-            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-step="2" data-key="amount" data-value="medium">
-              <span class="text-2xl mb-4 block">💳</span>
-              <p class="font-semibold text-lg text-ink mb-1">$200 – $1,000</p>
-              <p class="text-sm text-muted">Regular monthly transfers</p>
-            </button>
-            <button class="choice-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-step="2" data-key="amount" data-value="large">
-              <span class="text-2xl mb-4 block">🏦</span>
-              <p class="font-semibold text-lg text-ink mb-1">Over $1,000</p>
-              <p class="text-sm text-muted">Lump sums &amp; tuition</p>
-            </button>
-          </div>
-        </div>
-
-        <!-- ── Step 3 — priorities (multi-select, Continue button) ── -->
-        <div id="step-3" class="hidden">
-          <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-ink mb-2 leading-[1.15]">What matters most?</h2>
-          <p class="text-sm text-faint mb-8">Select all that apply.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-value="lowest-cost">
-              <span class="text-2xl mb-4 block">💰</span>
-              <p class="font-semibold text-lg text-ink mb-1">Lowest cost</p>
-              <p class="text-sm text-muted">Squeeze every dollar</p>
-            </button>
-            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-value="fastest">
-              <span class="text-2xl mb-4 block">⚡</span>
-              <p class="font-semibold text-lg text-ink mb-1">Fastest transfer</p>
-              <p class="text-sm text-muted">Arrives in minutes</p>
-            </button>
-            <button class="q3-btn text-left border border-black/10 rounded-xl p-6 sm:p-7 hover:border-black/30 hover:bg-warm transition-all duration-150"
-              data-value="cash-pickup">
-              <span class="text-2xl mb-4 block">💵</span>
-              <p class="font-semibold text-lg text-ink mb-1">Cash pickup</p>
-              <p class="text-sm text-muted">Family collects in person</p>
-            </button>
-          </div>
-
-          <div class="mt-8 flex justify-end">
-            <button id="q3-continue" disabled
-              class="px-8 py-3 rounded-full text-sm font-medium bg-ink text-paper transition-all duration-150
-                     disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-ink/85">
-              See results →
-            </button>
-          </div>
-        </div>
-
-        <!-- ── Results ── -->
-        <div id="step-results" class="hidden">
-          <div id="top-match-container"></div>
-          <div id="other-options-section" class="hidden mt-10">
-            <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-4">Other options</h3>
-            <div id="other-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-          </div>
-
-          <!-- ── Bank warning — always shown on results ── -->
-          <div id="bank-warning" class="mt-10 p-6 sm:p-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50">
-            <div class="flex items-start gap-3">
-              <span class="text-2xl mt-0.5">⚠</span>
-              <div>
-                <p class="font-semibold text-ink mb-2">Sending via your bank? You're losing money.</p>
-                <p id="bank-warning-amount" class="text-sm text-muted leading-relaxed mb-2">
-                  Big-four Australian banks (CBA, Westpac, ANZ, NAB) typically charge a <strong class="text-ink">$20–32 flat fee plus a 3–5% exchange rate markup</strong>. That's around <strong class="text-ink">$40–$45 on a $500 transfer</strong> in fees and poor exchange rates — versus around $5–15 through any of the services above.
-                </p>
-                <p class="text-sm text-muted leading-relaxed">
-                  We've left banks out of the ranking because they consistently rank last by cost. Set up one of the services above before your next transfer.
-                </p>
+            <!-- Step 2 — amount -->
+            <div id="step-2" class="hidden">
+              <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-10 leading-[1.15]">How much are you sending?</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button class="choice-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-step="2" data-key="amount" data-value="small">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">💵</span><p class="font-semibold text-lg text-white mb-1">Under $250</p><p class="text-sm text-white/50">Small, regular</p></button>
+                <button class="choice-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-step="2" data-key="amount" data-value="medium">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">💰</span><p class="font-semibold text-lg text-white mb-1">$250 – $2,000</p><p class="text-sm text-white/50">Most transfers</p></button>
+                <button class="choice-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-step="2" data-key="amount" data-value="large">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">🎓</span><p class="font-semibold text-lg text-white mb-1">Over $2,000</p><p class="text-sm text-white/50">Tuition, lump sums</p></button>
               </div>
             </div>
+
+            <!-- Step 3 — priorities multi-select -->
+            <div id="step-3" class="hidden">
+              <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white mb-2 leading-[1.15]">What matters most?</h3>
+              <p class="text-sm text-white/40 mb-8">Select all that apply.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button class="q3-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-value="lowest-cost">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">💸</span><p class="font-semibold text-lg text-white mb-1">Lowest cost</p><p class="text-sm text-white/50">Most money arrives</p></button>
+                <button class="q3-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-value="fastest">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">⚡</span><p class="font-semibold text-lg text-white mb-1">Fastest</p><p class="text-sm text-white/50">Arrives in minutes</p></button>
+                <button class="q3-btn text-left border border-white/10 rounded-xl p-6 sm:p-7 hover:border-white/30 hover:bg-white/[0.05] transition-all duration-150" data-value="cash-pickup">
+                  <span class="text-2xl mb-4 block" aria-hidden="true">🏦</span><p class="font-semibold text-lg text-white mb-1">Cash pickup</p><p class="text-sm text-white/50">No bank needed</p></button>
+              </div>
+              <div class="mt-8 flex justify-end">
+                <button id="q3-continue" disabled class="px-8 py-3 rounded-full text-sm font-medium bg-accent text-ink transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:scale-[1.03]">See results →</button>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div id="step-results" class="hidden">
+              <div id="top-match-container"></div>
+              <div id="other-options-section" class="hidden mt-10">
+                <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-4">Other options</h3>
+                <div id="other-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+              </div>
+              <div id="bank-warning" class="mt-10 p-6 sm:p-7 rounded-2xl border-l-4 border-l-amber-400/70 glass">
+                <div class="flex items-start gap-3">
+                  <span class="text-xl" aria-hidden="true">⚠</span>
+                  <div>
+                    <p class="font-semibold text-amber-300 mb-1">Don't use your bank's own transfer</p>
+                    <p id="bank-warning-amount" class="text-sm text-white/70 leading-relaxed"></p>
+                  </div>
+                </div>
+              </div>
+              <p class="mt-8 text-center text-xs text-white/30">✱ Illustrative model checked {latestVerified} · confirm the live quote before sending</p>
+            </div>
           </div>
-
-          <p class="mt-10 text-center text-xs text-faint">
-            ✱ Data verified 29 May 2026 · Fees and rates may change
-          </p>
         </div>
+      </section>
 
+      <!-- 6. Who each suits -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-8">Which service suits which sender</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {resolvedSuitability.map((s) => (
+            <article class="glass rounded-2xl p-6 flex flex-col">
+              <h3 class="font-semibold text-white mb-2">{s.situation}</h3>
+              <p class="text-xs text-white/40 mb-3"><span class="text-white/60 font-medium">What matters:</span> {s.matters}</p>
+              <p class="text-sm text-white/60 leading-relaxed flex-1">{s.reasoning}</p>
+              <p class="mt-4 text-sm"><span class="text-white/40">Start with:</span> <a href="#finder" class="text-accent font-medium hover:underline underline-offset-2 ml-1">{s.provider.name}</a></p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- 7. Recipient amount / cost guidance -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-8">How the true cost works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Two costs, not one</h3><p class="text-sm text-white/60 leading-relaxed">Every transfer has a visible <strong class="text-white">transfer fee</strong> and a hidden <strong class="text-white">exchange-rate margin</strong> (how far the provider's rate sits below the mid-market rate). Add both to see what a transfer really costs.</p></div>
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Why "$0 fee" can cost more</h3><p class="text-sm text-white/60 leading-relaxed">A provider advertising no fee may bake a 2–3% margin into the rate. On $500 that margin is $10–15 — more than a service charging a $2–5 fee at the real rate.</p></div>
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Fee shape matters by amount</h3><p class="text-sm text-white/60 leading-relaxed">A flat fee stings most on small transfers; the rate margin dominates on large ones. The best provider for $100 is often not the best for $2,000.</p></div>
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Payment &amp; payout methods</h3><p class="text-sm text-white/60 leading-relaxed">Bank-transfer funding is usually cheapest; credit-card funding costs more. Cash pickup and mobile wallet add convenience but often a higher rate. The recipient's bank may also charge to receive.</p></div>
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Promotions vs ongoing</h3><p class="text-sm text-white/60 leading-relaxed">A fee-free or boosted-rate first transfer is genuinely cheapest once. Compare the ongoing rate before you settle on a provider for regular sends.</p></div>
+          <div class="glass rounded-2xl p-6"><h3 class="font-semibold text-white mb-2">Speed, limits &amp; verification</h3><p class="text-sm text-white/60 leading-relaxed">Delivery estimates are not guarantees. First transfers can be held for ID verification, and providers apply minimum and maximum limits (OFX starts at $250).</p></div>
+        </div>
+      </section>
+
+      <!-- 8. Methodology -->
+      <section id="methodology" class="mb-16 sm:mb-24 scroll-mt-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">How Arrivly compared these services</h2>
+        <div class="glass rounded-2xl p-6 sm:p-8 space-y-4 text-sm text-white/60 leading-relaxed">
+          <p>The tool runs a <strong class="text-white">filter-then-score</strong> process, weighted by <em>your</em> chosen priority — so there is deliberately no single universal winner.</p>
+          <ol class="space-y-2 list-decimal pl-5">
+            <li><strong class="text-white/80">Filter.</strong> Remove services that don't support your destination, don't handle your amount tier (OFX has a $250 minimum), or lack cash pickup when you require it.</li>
+            <li><strong class="text-white/80">Score by priority.</strong> Lowest cost heavily penalises fee + rate margin; fastest rewards the speed tier; cash pickup rewards providers built around it.</li>
+            <li><strong class="text-white/80">True cost, not headline fee.</strong> The comparison table ranks on all-in AUD cost (fee + margin), computed by tested functions, not the advertised fee.</li>
+          </ol>
+          <p><strong class="text-white">Commission is not a scoring input.</strong> Only Wise currently has an affiliate link; every other service is ranked identically on the same model. See our <a href="/affiliate-disclosure" class="text-white underline decoration-accent decoration-2 underline-offset-2 hover:text-accent transition-colors">disclosure</a>.</p>
+          <p class="text-white/40 text-xs">Underlying fee/markup data is currently an illustrative model pending live re-verification; figures are labelled accordingly throughout.</p>
+        </div>
+      </section>
+
+      <!-- 9. Pros & cons -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-8">Strengths and limitations</h2>
+        <div class="space-y-4">
+          {resolvedVerdicts.map((v) => (
+            <ProsCons title={v.provider.name} subtitle={`${v.provider.method_labels} · ${feeLabel(v.provider)} fee · ${markupLabel(v.provider)} rate`} pros={v.provider.pros} cons={v.provider.cons} />
+          ))}
+        </div>
+      </section>
+
+      <!-- 10. Warnings -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-8">Before you send — the things people miss</h2>
+        <ImportantWarnings items={warnings} />
+      </section>
+
+      <!-- 11. Scenarios -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">Three worked examples</h2>
+        <p class="text-sm text-white/50 mb-8 max-w-2xl">True all-in cost from the illustrative model, checked {latestVerified}. Not live rates — confirm in-app before sending.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {scenarios.map((sc) => {
+            const ranked = rankByCost(sc.amount, sc.tier);
+            const best = ranked[0], worst = ranked.at(-1);
+            return (
+              <article class="glass rounded-2xl p-6 flex flex-col">
+                <h3 class="font-serif text-xl font-light tracking-tight text-white leading-snug mb-4">{sc.title}</h3>
+                <div class="rounded-xl bg-white/[0.04] border border-white/10 p-4 mb-4">
+                  <p class="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1">Cheapest all-in</p>
+                  <p class="text-2xl font-bold text-accent tabular-nums leading-none">${best.totalCost.toFixed(2)}<span class="text-sm text-white/40 font-normal ml-2">{best.name}</span></p>
+                  <p class="text-xs text-white/40 mt-2">vs ${worst.totalCost.toFixed(2)} with {worst.name} — a ${(worst.totalCost - best.totalCost).toFixed(2)} difference on A${sc.amount}</p>
+                </div>
+                <p class="text-sm text-white/60 leading-relaxed flex-1">{sc.note}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <!-- 12. Original insight — the dominant number -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">The "$0 fee" trap, in dollars</h2>
+        <p class="text-sm text-white/50 mb-6 max-w-2xl">Both figures are the true all-in cost of sending <strong class="text-white/70">A$500</strong>, from the illustrative model. The service advertising the bigger fee can still be far cheaper.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="glass rounded-3xl p-8 border-l-4 border-l-red-400/50">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-2">Highest true cost</p>
+            <p class="font-serif text-2xl font-light text-white mb-6">{dearest500.name}</p>
+            <dl class="space-y-3 text-sm">
+              <div class="flex justify-between"><dt class="text-white/50">Advertised fee</dt><dd class="text-white tabular-nums">{dearest500.feeLabel}</dd></div>
+              <div class="flex justify-between"><dt class="text-white/50">Rate vs mid-market</dt><dd class="text-white tabular-nums">+{dearest500.markup}%</dd></div>
+              <div class="flex justify-between border-t border-white/10 pt-3"><dt class="text-white/70 font-medium">True cost on $500</dt><dd class="text-red-300 font-bold text-lg tabular-nums">${dearest500.totalCost.toFixed(2)}</dd></div>
+            </dl>
+          </div>
+          <div class="glass rounded-3xl p-8 border-l-4 border-l-accent">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-accent mb-2">Lowest true cost</p>
+            <p class="font-serif text-2xl font-light text-white mb-6">{cheapest500.name}</p>
+            <dl class="space-y-3 text-sm">
+              <div class="flex justify-between"><dt class="text-white/50">Advertised fee</dt><dd class="text-white tabular-nums">{cheapest500.feeLabel}</dd></div>
+              <div class="flex justify-between"><dt class="text-white/50">Rate vs mid-market</dt><dd class="text-white tabular-nums">+{cheapest500.markup}%</dd></div>
+              <div class="flex justify-between border-t border-white/10 pt-3"><dt class="text-white/70 font-medium">True cost on $500</dt><dd class="text-accent font-bold text-lg tabular-nums">${cheapest500.totalCost.toFixed(2)}</dd></div>
+            </dl>
+          </div>
+        </div>
+        <p class="text-xs text-white/30 mt-3">On a single A$500 transfer that's a ${(dearest500.totalCost - cheapest500.totalCost).toFixed(2)} difference — repeated monthly, roughly ${((dearest500.totalCost - cheapest500.totalCost) * 12).toFixed(0)} a year.</p>
+      </section>
+
+      <!-- 13. Sources -->
+      <section class="mb-16 sm:mb-24">
+        <h2 class="font-serif text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.1] mb-3">Sources and data notes</h2>
+        <p class="text-sm text-white/50 mb-6 max-w-2xl">Official provider pages. Editorial citations — separate from the transfer CTAs above, which may be affiliate links.</p>
+        <SourceList sources={sources} />
+      </section>
+
+      <!-- 14. Author -->
+      <section class="mb-16 sm:mb-24">
+        <AuthorReview publishedDate="2026-07-21" reviewedDate="2026-07-21" verifiedDate={latestVerified} />
+      </section>
+
+      <!-- 15. CTA -->
+      <div class="mb-16 sm:mb-24">
+        <CommercialCTA heading="Send money home for less" body="Answer three questions and we'll rank services by the true cost of your specific transfer — the amount, the destination, and what matters most to you." ctaText="Compare transfer services" ctaHref="#finder" />
       </div>
+
+      <!-- 16. Related guides -->
+      <section class="mb-8">
+        <h2 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white leading-[1.1] mb-6">Keep reading</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <a href="/sim-cards" class="glass rounded-2xl p-6 hover:border-white/25 transition-colors group"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-2">Compare</p><p class="font-serif text-lg font-light text-white leading-snug group-hover:text-accent transition-colors">Best SIM cards for international students</p></a>
+          <a href="/health-insurance" class="glass rounded-2xl p-6 hover:border-white/25 transition-colors group"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-2">Compare</p><p class="font-serif text-lg font-light text-white leading-snug group-hover:text-accent transition-colors">Health insurance by visa type</p></a>
+          <a href="/blog/how-i-saved-fees-money-as-international-student-raiz" class="glass rounded-2xl p-6 hover:border-white/25 transition-colors group"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-2">Guide</p><p class="font-serif text-lg font-light text-white leading-snug group-hover:text-accent transition-colors">The app that saved me when uni fees were due</p></a>
+          <a href="/blog/best-sim-card-international-students-australia-2026" class="glass rounded-2xl p-6 hover:border-white/25 transition-colors group"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 mb-2">Guide</p><p class="font-serif text-lg font-light text-white leading-snug group-hover:text-accent transition-colors">The iPhone plan trap costing students $2,500</p></a>
+        </div>
+      </section>
+
     </div>
   </div>
-
 </BaseLayout>
 
-<script define:vars={{ serialisedProviders }}>
+<script define:vars={{ serialisedProviders, verifiedDate: latestVerified }}>
   const PROVIDERS = JSON.parse(serialisedProviders);
-
-  // ── State ──────────────────────────────────────────────────────────────
   const answers = { country: null, amount: null, priorities: [] };
 
-  // ── Country list for Q1 typeahead ──────────────────────────────────────
-  // Alphabetical. Each entry has name, ISO code and flag emoji.
-  // Codes that no provider supports fall through to "OTHER" at selection
-  // time so the filter behaves the same as picking "Other" did before.
   const COUNTRIES = [
-    { name: 'Afghanistan',       code: 'AF', flag: '🇦🇫' },
-    { name: 'Bangladesh',        code: 'BD', flag: '🇧🇩' },
-    { name: 'China',             code: 'CN', flag: '🇨🇳' },
-    { name: 'Colombia',          code: 'CO', flag: '🇨🇴' },
-    { name: 'Ethiopia',          code: 'ET', flag: '🇪🇹' },
-    { name: 'Fiji',              code: 'FJ', flag: '🇫🇯' },
-    { name: 'India',             code: 'IN', flag: '🇮🇳' },
-    { name: 'Indonesia',         code: 'ID', flag: '🇮🇩' },
-    { name: 'Japan',             code: 'JP', flag: '🇯🇵' },
-    { name: 'Malaysia',          code: 'MY', flag: '🇲🇾' },
-    { name: 'Myanmar',           code: 'MM', flag: '🇲🇲' },
-    { name: 'Nepal',             code: 'NP', flag: '🇳🇵' },
-    { name: 'Nigeria',           code: 'NG', flag: '🇳🇬' },
-    { name: 'Pakistan',          code: 'PK', flag: '🇵🇰' },
-    { name: 'Papua New Guinea',  code: 'PG', flag: '🇵🇬' },
-    { name: 'Philippines',       code: 'PH', flag: '🇵🇭' },
-    { name: 'South Korea',       code: 'KR', flag: '🇰🇷' },
-    { name: 'Sri Lanka',         code: 'LK', flag: '🇱🇰' },
-    { name: 'Thailand',          code: 'TH', flag: '🇹🇭' },
-    { name: 'Timor-Leste',       code: 'TL', flag: '🇹🇱' },
-    { name: 'United Kingdom',    code: 'GB', flag: '🇬🇧' },
-    { name: 'United States',     code: 'US', flag: '🇺🇸' },
-    { name: 'Vietnam',           code: 'VN', flag: '🇻🇳' },
-    { name: 'Zimbabwe',          code: 'ZW', flag: '🇿🇼' },
+    { name: 'Afghanistan', code: 'AF', flag: '🇦🇫' }, { name: 'Bangladesh', code: 'BD', flag: '🇧🇩' },
+    { name: 'China', code: 'CN', flag: '🇨🇳' }, { name: 'Colombia', code: 'CO', flag: '🇨🇴' },
+    { name: 'Ethiopia', code: 'ET', flag: '🇪🇹' }, { name: 'Fiji', code: 'FJ', flag: '🇫🇯' },
+    { name: 'India', code: 'IN', flag: '🇮🇳' }, { name: 'Indonesia', code: 'ID', flag: '🇮🇩' },
+    { name: 'Japan', code: 'JP', flag: '🇯🇵' }, { name: 'Malaysia', code: 'MY', flag: '🇲🇾' },
+    { name: 'Myanmar', code: 'MM', flag: '🇲🇲' }, { name: 'Nepal', code: 'NP', flag: '🇳🇵' },
+    { name: 'Nigeria', code: 'NG', flag: '🇳🇬' }, { name: 'Pakistan', code: 'PK', flag: '🇵🇰' },
+    { name: 'Papua New Guinea', code: 'PG', flag: '🇵🇬' }, { name: 'Philippines', code: 'PH', flag: '🇵🇭' },
+    { name: 'South Korea', code: 'KR', flag: '🇰🇷' }, { name: 'Sri Lanka', code: 'LK', flag: '🇱🇰' },
+    { name: 'Thailand', code: 'TH', flag: '🇹🇭' }, { name: 'Timor-Leste', code: 'TL', flag: '🇹🇱' },
+    { name: 'United Kingdom', code: 'GB', flag: '🇬🇧' }, { name: 'United States', code: 'US', flag: '🇺🇸' },
+    { name: 'Vietnam', code: 'VN', flag: '🇻🇳' }, { name: 'Zimbabwe', code: 'ZW', flag: '🇿🇼' },
   ];
-
-  // Sentinel for the always-visible "Other" row at the bottom of the dropdown
   const OTHER_ROW = { name: 'Other', code: 'OTHER', flag: '🌍' };
-
-  // Codes actually supported by ≥1 provider — anything not in this set
-  // gets treated as 'OTHER' when filtering.
   const SUPPORTED_CODES = new Set();
   PROVIDERS.forEach(p => p.supported_countries.forEach(c => SUPPORTED_CODES.add(c)));
 
-  // ── DOM refs ───────────────────────────────────────────────────────────
-  const stepLabel    = document.getElementById('step-label');
-  const restartBtn   = document.getElementById('restart-btn');
+  const stepLabel = document.getElementById('step-label');
+  const restartBtn = document.getElementById('restart-btn');
   const progressSegs = document.querySelectorAll('.progress-seg');
-  const q1Search     = document.getElementById('q1-search');
-  const q1Dropdown   = document.getElementById('q1-dropdown');
-  const q1Selected   = document.getElementById('q1-selected');
-  const q1ChipText   = document.getElementById('q1-chip-text');
-  const q1ChipClear  = document.getElementById('q1-chip-clear');
-  const q1Continue   = document.getElementById('q1-continue');
-  const q3Continue   = document.getElementById('q3-continue');
-  const bankWarning  = document.getElementById('bank-warning-amount');
+  const q1Search = document.getElementById('q1-search');
+  const q1Dropdown = document.getElementById('q1-dropdown');
+  const q1Selected = document.getElementById('q1-selected');
+  const q1ChipText = document.getElementById('q1-chip-text');
+  const q1ChipClear = document.getElementById('q1-chip-clear');
+  const q1Continue = document.getElementById('q1-continue');
+  const q3Continue = document.getElementById('q3-continue');
+  const bankWarning = document.getElementById('bank-warning-amount');
 
-  const SELECTED_CLASSES = ['border-ink', 'bg-warm'];
+  const SELECTED_CLASSES = ['border-accent', 'bg-white/[0.08]'];
 
-  // ── Helpers ────────────────────────────────────────────────────────────
   function feeDisplay(p) {
     if (p.fee_aud === 0 && p.fee_percent === 0) return 'Free';
     if (p.fee_percent > 0 && p.fee_aud > 0) return '$' + p.fee_aud.toFixed(2) + ' + ' + p.fee_percent + '%';
     if (p.fee_percent > 0) return p.fee_percent + '%';
     return '$' + p.fee_aud.toFixed(2);
   }
+  function markupDisplay(p) { return p.rate_markup_percent === 0 ? 'Mid-market' : '+' + p.rate_markup_percent + '%'; }
+  function ctaUrl(p) { return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? p.affiliate_url : p.official_url; }
+  function ctaRel(p) { return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? 'sponsored noopener noreferrer' : 'noopener'; }
+  function shortSpeed(s) { return s.split('(')[0].split(' to ')[0].trim(); }
+  function providerInitial(p) { return p.name.charAt(0); }
 
-  function markupDisplay(p) {
-    return p.rate_markup_percent === 0 ? 'Mid-market' : '+' + p.rate_markup_percent + '%';
-  }
-
-  function ctaUrl(p) {
-    return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? p.affiliate_url : p.official_url;
-  }
-  function ctaRel(p) {
-    return (p.affiliate_url && p.affiliate_url !== 'PLACEHOLDER') ? 'sponsored noopener' : 'noopener';
-  }
-
-  function shortSpeed(s) {
-    // Strip parens & trailing range — keep the first segment for the stat tile
-    return s.split('(')[0].split(' to ')[0].trim();
-  }
-
-  function providerInitial(p) {
-    return p.name.charAt(0);
-  }
-
-  // ── Progress ───────────────────────────────────────────────────────────
   function setProgress(step) {
     const fill = step === 'results' ? 3 : step;
     progressSegs.forEach((seg, i) => {
-      seg.classList.toggle('bg-ink', i < fill);
-      seg.classList.toggle('bg-black/10', i >= fill);
+      seg.classList.toggle('bg-accent', i < fill);
+      seg.classList.toggle('bg-white/10', i >= fill);
     });
   }
 
-  // ── Hard filters ───────────────────────────────────────────────────────
   function filterProviders() {
     return PROVIDERS.filter(p => {
-      // Cash pickup priority → must offer cash pickup
       if (answers.priorities.includes('cash-pickup') && !p.transfer_methods.includes('cash_pickup')) return false;
-      // Amount → must support that tier (knocks out OFX for "small")
       if (answers.amount && !p.supports_amount.includes(answers.amount)) return false;
-      // Country → must support (OTHER skips filter)
       if (answers.country && answers.country !== 'OTHER' && !p.supported_countries.includes(answers.country)) return false;
       return true;
     });
   }
 
-  // ── Scoring (post-filter) ──────────────────────────────────────────────
   function scoreProvider(p) {
     let score = 100;
-
-    // ── Lowest cost — heavily penalise markup + fees
     if (answers.priorities.includes('lowest-cost')) {
-      score -= p.rate_markup_percent * 30;   // 3pt per 0.1% markup
-      score -= p.fee_aud * 2;                // 2pt per $1 flat fee
-      score -= p.fee_percent * 10;           // 10pt per 1% percent fee
+      score -= p.rate_markup_percent * 30;
+      score -= p.fee_aud * 2;
+      score -= p.fee_percent * 10;
     }
-
-    // ── Fastest — reward speed tier
     if (answers.priorities.includes('fastest')) {
       const bonus = { 'very-fast': 30, 'fast': 20, 'moderate': 10, 'slow': 0 };
       score += bonus[p.speed_tier] || 0;
     }
-
-    // ── Cash pickup — reward providers whose business this actually is
-    if (answers.priorities.includes('cash-pickup')) {
-      if (p.best_for.includes('cash-pickup')) score += 15;
-    }
-
-    // ── Country alignment — small bonus when explicit (filter already passed)
-    if (answers.country && answers.country !== 'OTHER' && p.supported_countries.includes(answers.country)) {
-      score += 10;
-    }
-
-    // ── Always-on tiebreakers
+    if (answers.priorities.includes('cash-pickup') && p.best_for.includes('cash-pickup')) score += 15;
+    if (answers.country && answers.country !== 'OTHER' && p.supported_countries.includes(answers.country)) score += 10;
     const speedTinyBonus = { 'very-fast': 5, 'fast': 3, 'moderate': 2, 'slow': 0 };
     score += speedTinyBonus[p.speed_tier] || 0;
     score -= p.rate_markup_percent * 0.5;
-
     return score;
   }
 
-  // ── Card builders ──────────────────────────────────────────────────────
   function stat(value, label) {
-    return '<div>' +
-      '<p class="text-xl sm:text-2xl font-bold text-ink">' + value + '</p>' +
-      '<p class="text-sm text-muted mt-0.5">' + label + '</p>' +
-    '</div>';
+    return '<div><p class="text-xl sm:text-2xl font-bold text-white">' + value + '</p><p class="text-sm text-white/50 mt-0.5">' + label + '</p></div>';
   }
-
   function verificationFooter(p) {
-    return '<p class="text-xs text-faint mt-5">Data verified: ' + p.last_verified + ' · ' + p.verified_source + '</p>';
+    return '<p class="text-xs text-white/30 mt-5">Illustrative model · ' + p.last_verified + ' · confirm live in-app</p>';
   }
-
   function logoBadge(p) {
-    return '<span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-warm font-serif text-xl font-medium text-ink shrink-0">' + providerInitial(p) + '</span>';
+    return '<span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/[0.06] border border-white/10 font-serif text-xl font-medium text-white shrink-0">' + providerInitial(p) + '</span>';
   }
 
   function buildTopCard(p) {
     const url = ctaUrl(p);
     return `
       <div>
-        <div class="inline-flex mb-4">
-          <span class="bg-accent text-ink px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.18em]">
-            Your top match
-          </span>
-        </div>
-
-        <div class="bg-warm rounded-3xl p-7 sm:p-9 border border-black/5">
+        <div class="inline-flex mb-4"><span class="bg-accent text-ink px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.18em]">Your top match</span></div>
+        <div class="rounded-3xl p-7 sm:p-9 border border-accent/40 bg-white/[0.04] shadow-[0_0_40px_rgba(200,240,100,0.07)]">
           <div class="flex items-start justify-between gap-4 mb-8">
-            <div class="flex items-start gap-4">
-              ${logoBadge(p)}
-              <div>
-                <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink leading-[1.15]">${p.name}</h3>
-                <p class="text-sm text-faint mt-2">${p.tagline}</p>
-                <p class="text-xs text-faint mt-0.5">${p.method_labels}</p>
-              </div>
+            <div class="flex items-start gap-4">${logoBadge(p)}
+              <div><h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white leading-[1.15]">${p.name}</h3>
+              <p class="text-sm text-white/40 mt-2">${p.tagline}</p><p class="text-xs text-white/40 mt-0.5">${p.method_labels}</p></div>
             </div>
-            <div class="text-right shrink-0">
-              <span class="text-2xl sm:text-3xl font-bold text-ink">${feeDisplay(p)}</span>
-              <span class="text-xs text-faint block mt-1">per transfer</span>
-            </div>
+            <div class="text-right shrink-0"><span class="text-2xl sm:text-3xl font-bold text-accent">${feeDisplay(p)}</span><span class="text-xs text-white/40 block mt-1">per transfer</span></div>
           </div>
-
-          <div class="grid grid-cols-3 gap-6 py-7 border-y border-black/5 mb-1">
-            ${stat(markupDisplay(p), 'Exchange rate')}
-            ${stat(shortSpeed(p.typical_speed), 'Typical speed')}
-            ${stat(p.best_for[0].replace('-', ' '), 'Best for')}
+          <div class="grid grid-cols-3 gap-6 py-7 border-y border-white/10 mb-1">
+            ${stat(markupDisplay(p), 'Exchange rate')}${stat(shortSpeed(p.typical_speed), 'Typical speed')}${stat(p.best_for[0].replace('-', ' '), 'Best for')}
           </div>
-
-          <ul class="space-y-2.5 mt-7 mb-8">
-            ${p.pros.map(item => `<li class="flex items-start gap-3 text-sm text-muted"><span class="mt-0.5 shrink-0 text-faint">✓</span>${item}</li>`).join('')}
-          </ul>
-
-          <a href="${url}" target="_blank" rel="${ctaRel(p)}"
-            class="flex items-center justify-center gap-2 w-full bg-ink text-paper font-medium text-sm py-4 rounded-full hover:bg-ink/85 transition-colors">
-            Send money via ${p.name} <span aria-hidden="true">→</span>
-          </a>
-
+          <ul class="space-y-2.5 mt-7 mb-8">${p.pros.map(item => `<li class="flex items-start gap-3 text-sm text-white/60"><span class="mt-0.5 shrink-0 text-accent">✓</span>${item}</li>`).join('')}</ul>
+          <a href="${url}" target="_blank" rel="${ctaRel(p)}" class="flex items-center justify-center gap-2 w-full bg-accent text-ink font-medium text-sm py-4 rounded-full hover:scale-[1.01] shadow-[0_0_28px_rgba(200,240,100,0.25)] transition-transform">Send money via ${p.name} <span aria-hidden="true">→</span></a>
           ${verificationFooter(p)}
         </div>
       </div>`;
@@ -390,252 +513,117 @@ const serialisedProviders = JSON.stringify(providers);
   function buildAltCard(p) {
     const url = ctaUrl(p);
     return `
-      <div class="bg-white rounded-2xl p-6 border border-black/5">
+      <div class="rounded-2xl p-6 border border-white/10 bg-white/[0.04]">
         <div class="flex items-start justify-between gap-3 mb-3">
-          <div class="flex items-start gap-3">
-            ${logoBadge(p)}
-            <div>
-              <p class="font-semibold text-ink">${p.name}</p>
-              <p class="text-xs text-faint mt-0.5">${p.tagline}</p>
-            </div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-bold text-ink">${feeDisplay(p)}</span>
-            <span class="text-xs text-faint block">per transfer</span>
-          </div>
+          <div class="flex items-start gap-3">${logoBadge(p)}<div><p class="font-semibold text-white">${p.name}</p><p class="text-xs text-white/40 mt-0.5">${p.tagline}</p></div></div>
+          <div class="text-right shrink-0"><span class="font-bold text-accent">${feeDisplay(p)}</span><span class="text-xs text-white/40 block">per transfer</span></div>
         </div>
-        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted mb-4">
-          <span>${markupDisplay(p)} rate</span>
-          <span>·</span>
-          <span>${shortSpeed(p.typical_speed)}</span>
-          <span>·</span>
-          <span>${p.method_labels.split(' · ')[0]}</span>
-        </div>
-        <a href="${url}" target="_blank" rel="${ctaRel(p)}"
-          class="flex items-center justify-center gap-1.5 w-full border border-black/15 text-ink text-sm font-medium py-2.5 rounded-full hover:border-ink hover:bg-warm transition-colors">
-          Send via ${p.name} <span aria-hidden="true">→</span>
-        </a>
-        <p class="text-xs text-faint mt-3">Verified ${p.last_verified}</p>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-white/60 mb-4"><span>${markupDisplay(p)} rate</span><span>·</span><span>${shortSpeed(p.typical_speed)}</span><span>·</span><span>${p.method_labels.split(' · ')[0]}</span></div>
+        <a href="${url}" target="_blank" rel="${ctaRel(p)}" class="flex items-center justify-center gap-1.5 w-full border border-white/15 text-white text-sm font-medium py-2.5 rounded-full hover:border-accent hover:text-accent transition-colors">Send via ${p.name} <span aria-hidden="true">→</span></a>
+        <p class="text-xs text-white/30 mt-3">Illustrative · ${p.last_verified}</p>
       </div>`;
   }
 
-  // ── Bank warning text — adapts to selected amount ─────────────────────
   function updateBankWarning() {
-    const base = 'Big-four Australian banks (CBA, Westpac, ANZ, NAB) typically charge a <strong class="text-ink">$20–32 flat fee plus a 3–5% exchange rate markup</strong>.';
+    const base = 'Big-four Australian banks (CBA, Westpac, ANZ, NAB) typically charge a <strong class="text-white">$20–32 flat fee plus a 3–5% exchange-rate markup</strong>.';
     let text;
-    if (answers.amount === 'small') {
-      text = base + " That's around <strong class=\"text-ink\">$25–$30 on a $200 transfer</strong> in fees and poor exchange rates — versus around $2–5 through any of the services above.";
-    } else if (answers.amount === 'large') {
-      text = base + " That's around <strong class=\"text-ink\">$100+ on a $2,000 transfer</strong> in fees and poor exchange rates — versus around $10–25 through any of the services above.";
-    } else {
-      text = base + " That's around <strong class=\"text-ink\">$40–$45 on a $500 transfer</strong> in fees and poor exchange rates — versus around $5–15 through any of the services above.";
-    }
+    if (answers.amount === 'small') text = base + ' On a $200 transfer that is roughly <strong class="text-white">$25–$30</strong> in total cost — versus around $2–5 through the services above.';
+    else if (answers.amount === 'large') text = base + ' On a $2,000 transfer that is roughly <strong class="text-white">$100+</strong> in total cost — versus around $10–25 through the services above.';
+    else text = base + ' On a $500 transfer that is roughly <strong class="text-white">$40–$45</strong> in total cost — versus around $5–15 through the services above.';
     bankWarning.innerHTML = text;
   }
 
-  // ── Navigation ─────────────────────────────────────────────────────────
   function goToStep(n) {
     document.querySelectorAll('[id^="step-"]').forEach(el => el.classList.add('hidden'));
-
     if (n === 'results') {
       document.getElementById('step-results').classList.remove('hidden');
-      setProgress('results');
-      stepLabel.textContent = 'Results';
-      restartBtn.classList.remove('hidden');
-      renderResults();
+      setProgress('results'); stepLabel.textContent = 'Results'; restartBtn.classList.remove('hidden'); renderResults();
     } else {
       document.getElementById('step-' + n).classList.remove('hidden');
-      setProgress(n);
-      stepLabel.textContent = 'Question ' + n + ' of 3';
-      restartBtn.classList.toggle('hidden', n === 1);
+      setProgress(n); stepLabel.textContent = 'Question ' + n + ' of 3'; restartBtn.classList.toggle('hidden', n === 1);
     }
   }
 
   function renderResults() {
-    const topEl   = document.getElementById('top-match-container');
-    const altSec  = document.getElementById('other-options-section');
+    const topEl = document.getElementById('top-match-container');
+    const altSec = document.getElementById('other-options-section');
     const altCont = document.getElementById('other-options-container');
-
     updateBankWarning();
-
-    const pool = filterProviders()
-      .map(p => ({ p, score: scoreProvider(p) }))
-      .sort((a, b) => b.score - a.score)
-      .map(x => x.p);
-
+    const pool = filterProviders().map(p => ({ p, score: scoreProvider(p) })).sort((a, b) => b.score - a.score).map(x => x.p);
     if (pool.length === 0) {
-      topEl.innerHTML = `
-        <div class="text-center py-12">
-          <p class="text-muted mb-4">No services match your exact criteria.</p>
-          <button onclick="document.getElementById('restart-btn').click()"
-            class="text-sm font-medium text-ink underline decoration-2 decoration-accent underline-offset-2">
-            Start over and adjust your answers
-          </button>
-        </div>`;
-      altSec.classList.add('hidden');
-      return;
+      topEl.innerHTML = `<div class="text-center py-12"><p class="text-white/60 mb-4">No services match your exact criteria.</p><button onclick="document.getElementById('restart-btn').click()" class="text-sm font-medium text-white underline decoration-2 decoration-accent underline-offset-2">Start over and adjust your answers</button></div>`;
+      altSec.classList.add('hidden'); return;
     }
-
     const top3 = pool.slice(0, 3);
     topEl.innerHTML = buildTopCard(top3[0]);
-
     const rest = top3.slice(1);
-    if (rest.length > 0) {
-      altCont.innerHTML = rest.map(buildAltCard).join('');
-      altSec.classList.remove('hidden');
-    } else {
-      altSec.classList.add('hidden');
-    }
+    if (rest.length > 0) { altCont.innerHTML = rest.map(buildAltCard).join(''); altSec.classList.remove('hidden'); }
+    else altSec.classList.add('hidden');
   }
 
-  // ── Reset ──────────────────────────────────────────────────────────────
   restartBtn.addEventListener('click', () => {
-    answers.country    = null;
-    answers.amount     = null;
-    answers.priorities = [];
-    document.querySelectorAll('.q3-btn, .choice-btn').forEach(b =>
-      b.classList.remove(...SELECTED_CLASSES)
-    );
-    clearCountrySelection();
-    q3Continue.disabled = true;
-    goToStep(1);
+    answers.country = null; answers.amount = null; answers.priorities = [];
+    document.querySelectorAll('.q3-btn, .choice-btn').forEach(b => b.classList.remove(...SELECTED_CLASSES));
+    clearCountrySelection(); q3Continue.disabled = true; goToStep(1);
   });
 
-  // ── Q1 country typeahead ───────────────────────────────────────────────
-  function escapeHtml(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
+  function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
   function countryItemHTML(c, isOther) {
-    return '<button type="button" class="country-item w-full text-left px-4 py-2.5 text-sm hover:bg-warm transition-colors flex items-center gap-3 '
-      + (isOther ? 'border-t border-black/5 text-muted' : 'text-ink')
-      + '" data-name="' + escapeHtml(c.name) + '" data-code="' + escapeHtml(c.code) + '">'
-      + '<span class="text-lg leading-none">' + (c.flag || '🌍') + '</span>'
-      + '<span>' + escapeHtml(c.name) + '</span>'
-      + '</button>';
+    return '<button type="button" class="country-item w-full text-left px-4 py-2.5 text-sm hover:bg-white/[0.06] transition-colors flex items-center gap-3 '
+      + (isOther ? 'border-t border-white/10 text-white/60' : 'text-white')
+      + '" data-name="' + escapeHtml(c.name) + '" data-code="' + escapeHtml(c.code) + '"><span class="text-lg leading-none">' + (c.flag || '🌍') + '</span><span>' + escapeHtml(c.name) + '</span></button>';
   }
-
   function renderDropdown(query) {
     const q = (query || '').trim().toLowerCase();
-    const filtered = q
-      ? COUNTRIES.filter(c => c.name.toLowerCase().includes(q))
-      : COUNTRIES.slice();
-
-    let html = '';
-    if (filtered.length === 0) {
-      html += '<p class="px-4 py-3 text-sm text-faint">No matches — pick "Other" below.</p>';
-    } else {
-      html += filtered.map(c => countryItemHTML(c, false)).join('');
-    }
-    // "Other" always appears at the bottom regardless of filter
+    const filtered = q ? COUNTRIES.filter(c => c.name.toLowerCase().includes(q)) : COUNTRIES.slice();
+    let html = filtered.length === 0 ? '<p class="px-4 py-3 text-sm text-white/40">No matches — pick "Other" below.</p>' : filtered.map(c => countryItemHTML(c, false)).join('');
     html += countryItemHTML(OTHER_ROW, true);
-
     q1Dropdown.innerHTML = html;
-
     q1Dropdown.querySelectorAll('.country-item').forEach(el => {
-      el.addEventListener('mousedown', (e) => {
-        // mousedown (not click) so we beat the document click-outside handler
-        e.preventDefault();
-        selectCountry({ name: el.dataset.name, code: el.dataset.code });
-      });
+      el.addEventListener('mousedown', (e) => { e.preventDefault(); selectCountry({ name: el.dataset.name, code: el.dataset.code }); });
     });
   }
-
-  function openDropdown() {
-    q1Dropdown.classList.remove('hidden');
-  }
-  function closeDropdown() {
-    q1Dropdown.classList.add('hidden');
-  }
-
+  function openDropdown() { q1Dropdown.classList.remove('hidden'); }
+  function closeDropdown() { q1Dropdown.classList.add('hidden'); }
   function selectCountry(c) {
-    // Map unsupported codes → 'OTHER' so the filter behaves as before
     const filterCode = (c.code === 'OTHER' || !SUPPORTED_CODES.has(c.code)) ? 'OTHER' : c.code;
     answers.country = filterCode;
-
     q1ChipText.textContent = c.name;
-    q1Selected.classList.remove('hidden');
-    q1Selected.classList.add('flex');
-
-    q1Search.value = '';
-    closeDropdown();
-    q1Continue.disabled = false;
+    q1Selected.classList.remove('hidden'); q1Selected.classList.add('flex');
+    q1Search.value = ''; closeDropdown(); q1Continue.disabled = false;
   }
-
   function clearCountrySelection() {
-    answers.country = null;
-    q1ChipText.textContent = '';
-    q1Selected.classList.add('hidden');
-    q1Selected.classList.remove('flex');
-    q1Search.value = '';
-    q1Continue.disabled = true;
-    closeDropdown();
+    answers.country = null; q1ChipText.textContent = '';
+    q1Selected.classList.add('hidden'); q1Selected.classList.remove('flex');
+    q1Search.value = ''; q1Continue.disabled = true; closeDropdown();
   }
-
-  // Open + filter dropdown on every keypress (input event)
-  q1Search.addEventListener('input', () => {
-    renderDropdown(q1Search.value);
-    openDropdown();
-  });
-
-  // Re-open on focus IF user has already typed something
-  q1Search.addEventListener('focus', () => {
-    if (q1Search.value.length > 0) {
-      renderDropdown(q1Search.value);
-      openDropdown();
-    }
-  });
-
-  // Click outside closes dropdown
+  q1Search.addEventListener('input', () => { renderDropdown(q1Search.value); openDropdown(); });
+  q1Search.addEventListener('focus', () => { if (q1Search.value.length > 0) { renderDropdown(q1Search.value); openDropdown(); } });
   document.addEventListener('mousedown', (e) => {
     if (q1Dropdown.classList.contains('hidden')) return;
     if (q1Search.contains(e.target) || q1Dropdown.contains(e.target)) return;
     closeDropdown();
   });
-
-  // Clear chip
   q1ChipClear.addEventListener('click', clearCountrySelection);
-
-  // Q1 continue
   q1Continue.addEventListener('click', () => goToStep(2));
 
-  // ── Q2 single-select (auto-advance) ────────────────────────────────────
   document.querySelectorAll('.choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const step  = parseInt(btn.dataset.step);
-      const key   = btn.dataset.key;
-      const value = btn.dataset.value;
-
-      document.querySelectorAll('[data-step="' + step + '"]').forEach(b =>
-        b.classList.remove(...SELECTED_CLASSES)
-      );
+      const step = parseInt(btn.dataset.step), key = btn.dataset.key, value = btn.dataset.value;
+      document.querySelectorAll('[data-step="' + step + '"]').forEach(b => b.classList.remove(...SELECTED_CLASSES));
       btn.classList.add(...SELECTED_CLASSES);
-
       answers[key] = value;
-
       setTimeout(() => goToStep(step + 1), 180);
     });
   });
-
-  // ── Q3 multi-select ────────────────────────────────────────────────────
   document.querySelectorAll('.q3-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const value = btn.dataset.value;
-      const idx   = answers.priorities.indexOf(value);
-      if (idx === -1) {
-        answers.priorities.push(value);
-        btn.classList.add(...SELECTED_CLASSES);
-      } else {
-        answers.priorities.splice(idx, 1);
-        btn.classList.remove(...SELECTED_CLASSES);
-      }
+      const value = btn.dataset.value, idx = answers.priorities.indexOf(value);
+      if (idx === -1) { answers.priorities.push(value); btn.classList.add(...SELECTED_CLASSES); }
+      else { answers.priorities.splice(idx, 1); btn.classList.remove(...SELECTED_CLASSES); }
       q3Continue.disabled = answers.priorities.length === 0;
     });
   });
-
   q3Continue.addEventListener('click', () => goToStep('results'));
-
-  // ── Init ───────────────────────────────────────────────────────────────
   goToStep(1);
 </script>

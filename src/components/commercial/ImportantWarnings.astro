@@ -1,0 +1,19 @@
+---
+// Amber-bordered warnings block, shared across commercial pages.
+// props: items: string[] — each may contain a leading "Bold lead — rest".
+const { items = [] } = Astro.props;
+---
+<div class="glass rounded-2xl border-l-4 border-l-amber-400/70 p-6 sm:p-8">
+  <ul class="space-y-3.5 text-sm text-white/70 leading-relaxed">
+    {items.map((item) => {
+      const dash = item.indexOf(' — ');
+      const lead = dash > -1 ? item.slice(0, dash) : null;
+      const rest = dash > -1 ? item.slice(dash + 3) : item;
+      return (
+        <li>
+          {lead && <strong class="text-amber-300">{lead} — </strong>}{rest}
+        </li>
+      );
+    })}
+  </ul>
+</div>

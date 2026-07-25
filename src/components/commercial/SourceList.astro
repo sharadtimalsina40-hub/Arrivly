@@ -1,0 +1,19 @@
+---
+// Editorial source citations — genuine references, NOT affiliate CTAs, so no
+// `sponsored` and no automatic `nofollow`. Affiliate links live on the plan
+// CTAs and are labelled there.
+// props: sources = [{ name, url, verified, date }]
+const { sources = [] } = Astro.props;
+---
+<ul class="space-y-4">
+  {sources.map((s) => (
+    <li class="glass rounded-xl px-5 py-4">
+      <a href={s.url} target="_blank" rel="noopener"
+        class="text-sm font-medium text-white hover:text-accent transition-colors">
+        {s.name} <span aria-hidden="true" class="text-white/30">↗</span>
+      </a>
+      <p class="text-xs text-white/50 leading-relaxed mt-1.5">{s.verified}</p>
+      <p class="text-xs text-white/30 mt-1">Checked {s.date}</p>
+    </li>
+  ))}
+</ul>
