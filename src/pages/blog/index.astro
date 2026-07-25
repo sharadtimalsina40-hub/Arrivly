@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/commercial/Breadcrumbs.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('posts')).sort(
@@ -8,43 +9,60 @@ const posts = (await getCollection('posts')).sort(
 
 const dateFmt = (d: Date) =>
   d.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const canonical = 'https://arrivly.com.au/blog';
 ---
 
 <BaseLayout
-  title="Blog — Arrivly"
-  description="Honest guides for international students settling into Australia — SIM cards, health insurance, banking, money transfers and the small things nobody tells you.">
+  title="Blog — honest guides for international students in Australia | Arrivly"
+  description="Honest, plain-English guides for international students settling into Australia — SIM cards, health insurance, banking, money transfers and the small things nobody tells you."
+  canonical={canonical}
+  theme="dark">
 
-  <section class="max-w-3xl mx-auto px-6 sm:px-8 pt-12 pb-8 sm:pt-20">
-    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Arrivly journal</p>
-    <h1 class="font-serif text-4xl sm:text-6xl font-light tracking-tight text-ink leading-[1.05] mb-4">
-      Things we wish we'd known
-    </h1>
-    <p class="text-lg text-muted leading-relaxed max-w-2xl">
-      Honest, plain-English guides for international students settling into Australia. Written by people who went through it themselves.
-    </p>
-  </section>
+  <div class="relative hero-glow grain">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-16 sm:pb-24 relative">
 
-  <section class="max-w-3xl mx-auto px-6 sm:px-8 pb-20">
-    {posts.length === 0 ? (
-      <p class="text-muted py-12">No posts yet — check back soon.</p>
-    ) : (
-      <ul class="border-t border-black/10">
-        {posts.map((post) => (
-          <li class="border-b border-black/10">
-            <a href={`/blog/${post.id}`} class="block py-7 group">
-              <p class="text-xs text-faint tracking-wide mb-2">{dateFmt(post.data.pubDate)}</p>
-              <h2 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink group-hover:text-muted transition-colors leading-[1.2] mb-2">
-                {post.data.title}
-              </h2>
-              <p class="text-sm sm:text-base text-muted leading-relaxed">{post.data.description}</p>
-              <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink mt-4 group-hover:gap-3 transition-all">
-                Read article <span aria-hidden="true">→</span>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
-  </section>
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
+
+      <header class="mt-10 sm:mt-16 mb-12 sm:mb-16">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50 mb-5">Arrivly journal</p>
+        <h1 class="font-serif text-4xl sm:text-6xl font-light tracking-tight text-white leading-[1.05] mb-5">
+          Things we wish we'd known
+        </h1>
+        <p class="text-base sm:text-lg text-white/70 leading-relaxed max-w-2xl">
+          Honest, plain-English guides for international students settling into Australia. Written by people who went through it themselves.
+        </p>
+      </header>
+
+      {posts.length === 0 ? (
+        <p class="text-white/50 py-12">No posts yet — check back soon.</p>
+      ) : (
+        <ul class="grid grid-cols-1 gap-4">
+          {posts.map((post) => (
+            <li>
+              <a href={`/blog/${post.id}`} class="glass rounded-2xl p-6 sm:p-8 block group hover:border-white/25 transition-colors">
+                <p class="text-xs text-white/40 tracking-wide mb-3">{dateFmt(post.data.pubDate)}</p>
+                <h2 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-white group-hover:text-accent transition-colors leading-[1.2] mb-3">
+                  {post.data.title}
+                </h2>
+                <p class="text-sm sm:text-base text-white/60 leading-relaxed">{post.data.description}</p>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-2 mt-4">
+                    {post.data.tags.map((tag) => (
+                      <span class="text-[11px] font-medium text-white/50 border border-white/10 rounded-full px-2.5 py-0.5">{tag}</span>
+                    ))}
+                  </div>
+                )}
+                <span class="inline-flex items-center gap-1.5 text-sm font-medium text-white mt-5 group-hover:gap-3 transition-all">
+                  Read article <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+    </div>
+  </div>
 
 </BaseLayout>

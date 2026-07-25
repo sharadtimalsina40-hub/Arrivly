@@ -183,3 +183,33 @@
 }
 .prose tbody tr:hover { background: var(--color-warm); }
 .prose tbody td strong { color: var(--color-ink); }
+
+/* ── Dark-theme prose (blog posts on the dark glass system) ── */
+.theme-dark .prose { color: rgba(255,255,255,0.78); }
+.theme-dark .prose h1,
+.theme-dark .prose h2,
+.theme-dark .prose h3 { color: #fafaf8; }
+.theme-dark .prose strong { color: #fafaf8; }
+.theme-dark .prose .meta { color: rgba(255,255,255,0.4); }
+.theme-dark .prose a { color: #fafaf8; text-decoration-color: var(--color-accent); }
+.theme-dark .prose a:hover { text-decoration-color: #fafaf8; }
+.theme-dark .prose figcaption { color: rgba(255,255,255,0.4); }
+.theme-dark .prose hr { border-top-color: rgba(255,255,255,0.12); }
+.theme-dark .prose blockquote {
+  background: rgba(255,255,255,0.05);
+  border-left-color: var(--color-accent);
+  color: #fafaf8;
+}
+.theme-dark .prose .callout {
+  background: rgba(255,255,255,0.05);
+  border-left-color: var(--color-accent);
+  color: #fafaf8;
+}
+.theme-dark .prose thead th {
+  color: rgba(255,255,255,0.5);
+  border-bottom-color: rgba(255,255,255,0.7);
+}
+.theme-dark .prose th,
+.theme-dark .prose td { border-bottom-color: rgba(255,255,255,0.1); }
+.theme-dark .prose tbody tr:hover { background: rgba(255,255,255,0.04); }
+.theme-dark .prose tbody td strong { color: #fafaf8; }

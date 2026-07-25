@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/commercial/Breadcrumbs.astro';
+import CommercialCTA from '../../components/commercial/CommercialCTA.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -18,41 +20,81 @@ const dateFmt = post.data.pubDate.toLocaleDateString('en-AU', {
   month: 'long',
   year: 'numeric',
 });
+const isoDate = post.data.pubDate.toISOString().slice(0, 10);
+const canonical = `https://arrivly.com.au/blog/${post.id}`;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: isoDate,
+    url: canonical,
+    author: { '@type': 'Organization', name: 'Arrivly', url: 'https://arrivly.com.au' },
+    publisher: { '@type': 'Organization', name: 'Arrivly', url: 'https://arrivly.com.au' },
+    ...(post.data.tags ? { keywords: post.data.tags.join(', ') } : {}),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://arrivly.com.au/' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://arrivly.com.au/blog' },
+      { '@type': 'ListItem', position: 3, name: post.data.title, item: canonical },
+    ],
+  },
+];
 ---
 
-<BaseLayout title={`${post.data.title} — Arrivly`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} — Arrivly`}
+  description={post.data.description}
+  canonical={canonical}
+  theme="dark">
 
-  <article class="max-w-[760px] mx-auto px-6 sm:px-8 pt-10 pb-16 sm:pt-16 sm:pb-24">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
 
-    <!-- Header -->
-    <header class="mb-10">
-      <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-faint hover:text-ink transition-colors mb-8">
-        <span aria-hidden="true">←</span> Back to blog
+  <div class="relative hero-glow grain">
+    <article class="max-w-[720px] mx-auto px-4 sm:px-6 pt-8 pb-16 sm:pb-24 relative">
+
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.data.title }]} />
+
+      <!-- Header -->
+      <header class="mt-10 sm:mt-14 mb-10">
+        <p class="text-xs text-white/40 tracking-wide mb-4">{dateFmt} · {post.data.author}</p>
+        <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-white leading-[1.1] mb-5">
+          {post.data.title}
+        </h1>
+        <p class="text-lg text-white/70 leading-relaxed">{post.data.description}</p>
+        {post.data.tags && post.data.tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mt-6">
+            {post.data.tags.map((tag) => (
+              <span class="text-[11px] font-medium text-white/50 border border-white/10 rounded-full px-2.5 py-0.5">{tag}</span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Rendered markdown (dark prose via .theme-dark .prose) -->
+      <div class="prose">
+        <Content />
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="mt-16">
+        <CommercialCTA
+          heading="Find your best SIM plan in 30 seconds"
+          body="Answer three quick questions — we'll rank 12 verified Australian plans by how well they actually fit your situation."
+          ctaText="Compare SIM cards"
+          ctaHref="/sim-cards"
+        />
+      </div>
+
+      <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors mt-10">
+        <span aria-hidden="true">←</span> Back to all articles
       </a>
-      <p class="text-xs text-faint tracking-wide mb-3">{dateFmt} · {post.data.author}</p>
-      <h1 class="font-serif text-4xl sm:text-5xl font-light tracking-tight text-ink leading-[1.1] mb-5">
-        {post.data.title}
-      </h1>
-      <p class="text-lg text-muted leading-relaxed">{post.data.description}</p>
-    </header>
-
-    <!-- Rendered markdown -->
-    <div class="prose">
-      <Content />
-    </div>
-
-    <!-- Footer CTA strip -->
-    <div class="mt-16 pt-10 border-t border-black/10">
-      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-faint mb-3">Next step</p>
-      <h3 class="font-serif text-2xl sm:text-3xl font-light tracking-tight text-ink mb-3 leading-[1.2]">
-        Find your best plan in 30 seconds.
-      </h3>
-      <p class="text-muted mb-6">Answer three quick questions — we'll rank 12 verified Australian plans by how well they actually fit you.</p>
-      <a href="/sim-cards"
-        class="inline-flex items-center gap-2 bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-ink/85 transition-colors">
-        Compare SIM cards <span aria-hidden="true">→</span>
-      </a>
-    </div>
-  </article>
+    </article>
+  </div>
 
 </BaseLayout>
