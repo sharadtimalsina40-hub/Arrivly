@@ -11,12 +11,18 @@ const {
   ogImage = '/og-image.svg',
   theme = 'light',
   canonical,
+  showMarketing = true,
 } = Astro.props;
 
 const finalOgTitle = ogTitle || title;
 const finalOgDescription = ogDescription || description;
 // Canonical: explicit prop wins; otherwise derive from the configured site + current path.
-const canonicalUrl = canonical || new URL(Astro.url.pathname, Astro.site).href;
+// Normalise the path to the no-trailing-slash form (root stays "/") so the
+// auto-derived canonical matches the hardcoded ones and the sitemap.
+const normalisedPath = Astro.url.pathname !== '/'
+  ? Astro.url.pathname.replace(/\/$/, '')
+  : '/';
+const canonicalUrl = canonical || new URL(normalisedPath, Astro.site).href;
 const dark = theme === 'dark';
 const bodyCls = dark
   ? 'theme-dark bg-[#0a0a0a] text-white font-sans antialiased min-h-screen flex flex-col'
@@ -61,10 +67,10 @@ const bodyCls = dark
     <main class="flex-1">
       <slot />
     </main>
-    <Footer theme={theme} />
+    {showMarketing && <Footer theme={theme} />}
 
     <!-- ── Email capture popup (timed, once per session) ── -->
-    <div id="arrivly-popup"
+    {showMarketing && <div id="arrivly-popup"
       class="theme-dark fixed inset-0 z-50 bg-black/70 hidden items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
@@ -106,9 +112,9 @@ const bodyCls = dark
           You're in! We'll be in touch.
         </div>
       </div>
-    </div>
+    </div>}
 
-    <script is:inline>
+    {showMarketing && <script is:inline>
       (function () {
         var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzZcrFrHRfha_xGF-8c6bbMP-VU74JzPV2xPGPWyYPaIE71vKj7ItU2vSuOqlp-cihZ/exec';
         var FLAG_KEY  = 'arrivly_popup_shown';
@@ -162,6 +168,6 @@ const bodyCls = dark
           setTimeout(close, 2000);
         });
       })();
-    </script>
+    </script>}
   </body>
 </html>

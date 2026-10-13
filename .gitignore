@@ -13,12 +13,22 @@ yarn-error.log*
 pnpm-debug.log*
 
 
-# environment variables
-.env
-.env.production
+# environment variables and Cloudflare local secrets
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+# Guard against the easy-to-miss Cloudflare filename typo.
+dev.vars
 
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+.wrangler/
+# Cloudflare local state
+.wrangler/
+
+# Local duplicate workspace
+Arrivly/

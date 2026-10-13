@@ -9,12 +9,27 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test:job-analysis": "node scripts/run-job-analysis-tests.mjs",
+    "test:matching": "node scripts/run-matching-tests.mjs",
+    "test:follow-up": "node scripts/run-follow-up-tests.mjs",
+    "test:resume-writing": "node scripts/run-resume-writing-tests.mjs",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "13.7.0",
+    "@astrojs/preact": "^6.0.4",
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.2",
-    "tailwindcss": "^4.3.0"
+    "docx": "9.7.1",
+    "openai": "7.21.0",
+    "pdfmake": "0.3.11",
+    "preact": "^10.29.8",
+    "tailwindcss": "^4.3.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/pdfmake": "0.3.3",
+    "esbuild": "0.27.7"
   }
 }

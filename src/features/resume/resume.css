@@ -1,0 +1,183 @@
+@page {
+  size: A4 portrait;
+  margin: 14mm 15mm 15mm;
+}
+
+.resume-page {
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.resume-page-shell,
+.resume-page astro-island,
+.resume-builder-layout,
+.resume-review-layout,
+.resume-builder-controls,
+.resume-review-controls,
+.resume-preview-column,
+.resume-print-root {
+  min-width: 0;
+}
+
+.resume-preview-column,
+.resume-print-root {
+  width: 100%;
+}
+
+.resume-print-root {
+  display: flex;
+  justify-content: center;
+}
+
+.resume-document {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 210mm;
+  min-width: 0;
+  height: auto;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.resume-page [tabindex='-1'] {
+  scroll-margin-top: 7rem;
+}
+
+@media (min-width: 1100px) {
+  .resume-review-layout {
+    grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .resume-review-controls {
+    position: sticky;
+    top: 7rem;
+    min-width: 300px;
+  }
+
+  .resume-builder-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+    align-items: start;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .resume-builder-layout > .resume-preview-column {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+@media print {
+  html,
+  body {
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  body {
+    display: block !important;
+    color: #0a0a0a !important;
+  }
+
+  /* This stylesheet is loaded only by /resume. Remove shared site chrome. */
+  body > :not(main),
+  #arrivly-popup {
+    display: none !important;
+  }
+
+  body > main,
+  .resume-page,
+  .resume-page-shell,
+  .resume-page astro-island,
+  .resume-builder-layout,
+  .resume-review-layout,
+  .resume-preview-column,
+  .resume-print-root {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .resume-page {
+    position: static !important;
+  }
+
+  .resume-page::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  .resume-page-intro,
+  .resume-builder-controls,
+  .resume-review-controls,
+  .resume-preview-controls {
+    display: none !important;
+  }
+
+  .resume-builder-layout,
+  .resume-review-layout {
+    grid-template-columns: none !important;
+  }
+
+  .resume-preview-column,
+  .resume-print-root {
+    position: static !important;
+  }
+
+  .resume-document {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #0a0a0a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Preserve Modern's restrained top accent without adding screen padding. */
+  .resume-document[data-resume-template='modern'] {
+    padding-top: 4mm !important;
+  }
+
+  /* Keep compact document units together, while allowing long sections to flow. */
+  .resume-document > header,
+  .resume-document > section > ol > li,
+  .resume-document > section > ul > li,
+  .resume-document li > ul > li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .resume-document > section {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .resume-document > section > h3,
+  .resume-document h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .resume-document p,
+  .resume-document li {
+    orphans: 3;
+    widows: 3;
+  }
+}

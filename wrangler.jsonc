@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "arrivly",
+  "compatibility_date": "2026-09-09",
+  "vars": {
+    "OPENAI_MODEL": "gpt-4o-mini"
+  },
+  "ratelimits": [
+    {
+      "name": "JOB_ANALYSIS_RATE_LIMITER",
+      "namespace_id": "1000001",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "secrets": {
+    "required": ["OPENAI_API_KEY"]
+  }
+}

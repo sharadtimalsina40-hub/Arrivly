@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResumeApp from '../features/resume/ResumeApp';
+import '../features/resume/resume.css';
+---
+
+<BaseLayout
+  theme="dark"
+  showMarketing={false}
+  title="Australian Resume Builder | Arrivly"
+  description="Build a simple, professional Australian-style resume with Arrivly.">
+  <div class="resume-page hero-glow grain relative min-h-[70svh]">
+    <div class="resume-page-shell mx-auto w-full max-w-[90rem] min-w-0 px-4 pb-16 pt-10 sm:px-6 sm:pb-24 sm:pt-12 lg:px-8">
+      <header class="resume-page-intro mb-8 max-w-3xl sm:mb-10">
+        <p class="mb-5 font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
+          Australian resume builder
+        </p>
+        <h1 class="mb-5 font-serif text-4xl font-light leading-[1.05] tracking-tight text-white sm:text-6xl">
+          Resume Builder
+        </h1>
+        <p class="max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
+          Create an accurate, professional resume from the experience and skills
+          you provide.
+        </p>
+      </header>
+
+      <ResumeApp client:load />
+    </div>
+  </div>
+</BaseLayout>
